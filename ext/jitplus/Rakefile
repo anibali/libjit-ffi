@@ -1,0 +1,26 @@
+require 'rake/clean'
+
+CLEAN.include("*.o")
+CLOBBER.include("*.so")
+
+lib_name = "libjitplus.so"
+objs = %w[jitplus]
+libs = %w[c jit]
+
+LD = "ld"
+CC = "cc"
+
+objs.map! {|obj| "#{obj}.o"}
+libs.map! {|lib| "-l#{lib}"}
+
+task :default => :build
+
+desc "Build the library (#{lib_name})."
+task :build => objs do
+  sh "#{LD} -shared -static -o #{lib_name} #{objs.join " "} #{libs.join " "}"
+end
+
+rule '.o' => '.c' do |t|
+  sh "#{CC} -c -o #{t.name} #{t.source}"
+end
+
