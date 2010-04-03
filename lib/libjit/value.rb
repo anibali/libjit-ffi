@@ -45,6 +45,14 @@ class Value
     wrap_value LibJIT.jit_insn_ne(@function.jit_t, @jit_t, other.jit_t)
   end
   
+  def <<(other)
+    wrap_value LibJIT.jit_insn_shl(@function.jit_t, @jit_t, other.jit_t)
+  end
+  
+  def >>(other)
+    wrap_value LibJIT.jit_insn_shr(@function.jit_t, @jit_t, other.jit_t)
+  end
+  
   def +(other)
     wrap_value LibJIT.jit_insn_add(@function.jit_t, @jit_t, other.jit_t)
   end

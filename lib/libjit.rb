@@ -34,6 +34,8 @@ module LibJIT
   attach_function :jit_insn_default_return, [:pointer], :int
   attach_function :jit_insn_call, [:pointer, :string, :pointer, :pointer, :pointer, :uint, :int], :pointer
   attach_function :jit_insn_call_native, [:pointer, :string, :pointer, :pointer, :pointer, :uint, :int, :int], :pointer
+  attach_function :jit_insn_shl, [:pointer, :pointer, :pointer], :pointer
+  attach_function :jit_insn_shr, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_mul, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_div, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_add, [:pointer, :pointer, :pointer], :pointer
