@@ -27,7 +27,6 @@ Gem::Specification.new do |s|
      "lib/libjit/label.rb",
      "lib/libjit/type.rb",
      "lib/libjit/value.rb",
-     "lib/libjitplus.so",
      "spec/context_spec.rb",
      "spec/if_spec.rb",
      "spec/type_spec.rb"
@@ -36,6 +35,11 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{Ruby bindings for libjit using FFI}
+  s.test_files = [
+    "spec/context_spec.rb",
+     "spec/if_spec.rb",
+     "spec/type_spec.rb"
+  ]
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

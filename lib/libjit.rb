@@ -34,21 +34,27 @@ module LibJIT
   attach_function :jit_insn_default_return, [:pointer], :int
   attach_function :jit_insn_call, [:pointer, :string, :pointer, :pointer, :pointer, :uint, :int], :pointer
   attach_function :jit_insn_call_native, [:pointer, :string, :pointer, :pointer, :pointer, :uint, :int, :int], :pointer
+  # Bitwise operations
+  attach_function :jit_insn_not, [:pointer, :pointer], :pointer
   attach_function :jit_insn_shl, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_shr, [:pointer, :pointer, :pointer], :pointer
+  # Standard arithmetic
+  attach_function :jit_insn_neg, [:pointer, :pointer], :pointer
   attach_function :jit_insn_mul, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_div, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_add, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_sub, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_rem, [:pointer, :pointer, :pointer], :pointer
-  attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
-  attach_function :jit_insn_label, [:pointer, :pointer], :void
+  # Comparison operators
   attach_function :jit_insn_lt, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_le, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_gt, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_ge, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_eq, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_ne, [:pointer, :pointer, :pointer], :pointer
+  
+  attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
+  attach_function :jit_insn_label, [:pointer, :pointer], :void
   attach_function :jit_insn_branch, [:pointer, :pointer], :void
   attach_function :jit_insn_branch_if, [:pointer, :pointer, :pointer], :void
   attach_function :jit_insn_branch_if_not, [:pointer, :pointer, :pointer], :void

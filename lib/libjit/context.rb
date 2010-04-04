@@ -51,6 +51,15 @@ class Context
     LibJIT.jit_context_build_end @jit_t
   end
   
+  # Equivalent to context.build { context.function(*args, &block) }
+  def build_function *args, &block
+    func = nil
+    build do
+      func = function *args, &block
+    end
+    func
+  end
+  
   def function param_types, return_type
     func = Function.new(param_types, return_type)
     
