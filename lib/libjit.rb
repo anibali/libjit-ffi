@@ -45,7 +45,7 @@ module LibJIT
   attach_function :jit_insn_add, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_sub, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_rem, [:pointer, :pointer, :pointer], :pointer
-  # Comparison operators
+  # Comparison
   attach_function :jit_insn_lt, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_le, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_gt, [:pointer, :pointer, :pointer], :pointer
@@ -55,18 +55,23 @@ module LibJIT
   # Conversion
   attach_function :jit_insn_to_bool, [:pointer, :pointer], :pointer
   attach_function :jit_insn_to_not_bool, [:pointer, :pointer], :pointer
+  # Mathematical functions
+  attach_function :jit_insn_acos, [:pointer, :pointer], :pointer
+  attach_function :jit_insn_asin, [:pointer, :pointer], :pointer
+  attach_function :jit_insn_atan, [:pointer, :pointer], :pointer
   
   attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
+  attach_function :jit_undef_label, [], :int
   attach_function :jit_insn_label, [:pointer, :pointer], :void
   attach_function :jit_insn_branch, [:pointer, :pointer], :void
   attach_function :jit_insn_branch_if, [:pointer, :pointer, :pointer], :void
   attach_function :jit_insn_branch_if_not, [:pointer, :pointer, :pointer], :void
   
-  attach_function :jit_undef_label, [], :int
-  
   attach_function :jit_value_get_param, [:pointer, :int], :pointer
   attach_function :jit_value_create, [:pointer, :pointer], :pointer
-  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int], :pointer
+  
+  # Constants
+  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int32], :pointer
 end
 
 module JIT
