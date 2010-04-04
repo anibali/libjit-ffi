@@ -52,6 +52,9 @@ module LibJIT
   attach_function :jit_insn_ge, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_eq, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_ne, [:pointer, :pointer, :pointer], :pointer
+  # Conversion
+  attach_function :jit_insn_to_bool, [:pointer, :pointer], :pointer
+  attach_function :jit_insn_to_not_bool, [:pointer, :pointer], :pointer
   
   attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
   attach_function :jit_insn_label, [:pointer, :pointer], :void

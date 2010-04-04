@@ -175,12 +175,11 @@ class Function
     bottom = self.label
     @break_labels.push bottom
     jmp_if_not test.call, bottom
-    # FIXME: could result in incorrect 'false' due to overflow
     cond = declare :int8
     
     top.set
     yield
-    cond.store test.call
+    cond.store test.call.to_bool
     jmp_if cond, top
     
     bottom.set
@@ -192,12 +191,11 @@ class Function
     bottom = self.label
     @break_labels.push bottom
     jmp_if test.call, bottom
-    # FIXME: could result in incorrect 'false' due to overflow
-    cond = declare :int32
+    cond = declare :int8
     
     top.set
     yield
-    cond.store test.call
+    cond.store test.call.to_bool
     jmp_if_not cond, top
     
     bottom.set

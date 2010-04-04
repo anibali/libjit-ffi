@@ -81,6 +81,10 @@ class Value
     wrap_value LibJIT.jit_insn_rem(@function.jit_t, @jit_t, other.jit_t)
   end
   
+  def to_bool
+    wrap_value LibJIT.jit_insn_to_bool(@function.jit_t, @jit_t)
+  end
+  
   private
   def wrap_value val
     Value.wrap @function, val
