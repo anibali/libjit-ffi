@@ -1,9 +1,13 @@
-/* cc -shared -ljit -o libjit_ruby.so libjit_ruby.c */
+/*
+  Make a nice static library:
+  $ cc -c -o jitplus.o jitplus.c
+  $ ld -shared -static -o libjitplus.so jitplus.o -lc -ljit
+*/
 
 #include <stdio.h>
 #include <stdlib.h>
-#include <jit/jit.h>
 #include <string.h>
+#include <jit/jit.h>
 
 jit_type_t jit_type_from_string(char* str)
 {

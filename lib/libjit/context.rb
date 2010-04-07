@@ -7,6 +7,10 @@ class Context
     @@current
   end
   
+  def self.default
+    @@default ||= new
+  end
+  
   def initialize
     @jit_t = LibJIT.jit_context_create
     

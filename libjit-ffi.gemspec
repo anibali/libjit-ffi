@@ -9,7 +9,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Aiden Nibali"]
-  s.date = %q{2010-04-03}
+  s.date = %q{2010-04-06}
   s.description = %q{Ruby bindings for libjit using FFI}
   s.email = %q{dismal.denizen@gmail.com}
   s.extra_rdoc_files = [
@@ -27,18 +27,25 @@ Gem::Specification.new do |s|
      "lib/libjit/label.rb",
      "lib/libjit/type.rb",
      "lib/libjit/value.rb",
+     "lib/libjitplus.so",
+     "spec/bitwise_spec.rb",
+     "spec/comparison_spec.rb",
+     "spec/constant_spec.rb",
      "spec/context_spec.rb",
      "spec/if_spec.rb",
      "spec/type_spec.rb"
   ]
   s.rdoc_options = ["--charset=UTF-8", "--title", "libjit-ffi 0.0.0\n", "--main", "README", "--line-numbers"]
   s.require_paths = ["lib"]
-  s.rubygems_version = %q{1.3.6}
+  s.rubygems_version = %q{1.3.5}
   s.summary = %q{Ruby bindings for libjit using FFI}
   s.test_files = [
-    "spec/context_spec.rb",
+    "spec/comparison_spec.rb",
+     "spec/constant_spec.rb",
+     "spec/context_spec.rb",
      "spec/if_spec.rb",
-     "spec/type_spec.rb"
+     "spec/type_spec.rb",
+     "spec/bitwise_spec.rb"
   ]
 
   if s.respond_to? :specification_version then

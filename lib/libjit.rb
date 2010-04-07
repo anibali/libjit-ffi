@@ -1,4 +1,4 @@
-require 'nice-ffi'
+require 'ffi'
 require 'pathname'
 
 require 'libjit/errors'
@@ -9,7 +9,7 @@ require 'libjit/function'
 require 'libjit/label'
 
 module LibJIT
-  extend NiceFFI::Library
+  extend FFI::Library
   
   cur_path = Pathname.new(__FILE__).expand_path.dirname
   ffi_lib cur_path.join("libjitplus.so").to_s
@@ -71,12 +71,12 @@ module LibJIT
   attach_function :jit_value_create, [:pointer, :pointer], :pointer
   
   # Constants
-  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int32], :pointer
+  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int64], :pointer
 end
 
 module JIT
   module LibC
-    extend NiceFFI::Library
+    extend FFI::Library
     
     ffi_lib FFI::Platform::LIBC
     

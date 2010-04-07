@@ -3,7 +3,7 @@ require 'libjit'
 describe JIT::Function do
   it "should handle 'if' statements" do
     pos_test = nil
-    JIT::Context.new.build do |c|
+    JIT::Context.default.build do |c|
       pos_test = c.function [:int32], :int8 do |f|
         zero = f.const(:int8, 0)
         one = f.const(:int8, 1)
@@ -26,7 +26,7 @@ describe JIT::Function do
   
   it "should handle 'if-else' statements" do
     pos_test = nil
-    JIT::Context.new.build do |c|
+    JIT::Context.default.build do |c|
       pos_test = c.function [:int32], :int8 do |f|
         zero = f.const(:int8, 0)
         one = f.const(:int8, 1)
@@ -51,7 +51,7 @@ describe JIT::Function do
   
   it "should handle 'unless' statements" do
     pos_test = nil
-    JIT::Context.new.build do |c|
+    JIT::Context.default.build do |c|
       pos_test = c.function [:int32], :int8 do |f|
         zero = f.const(:int8, 0)
         one = f.const(:int8, 1)
@@ -74,7 +74,7 @@ describe JIT::Function do
   
   it "should handle 'unless-else' statements" do
     pos_test = nil
-    JIT::Context.new.build do |c|
+    JIT::Context.default.build do |c|
       pos_test = c.function [:int32], :int8 do |f|
         zero = f.const(:int8, 0)
         one = f.const(:int8, 1)

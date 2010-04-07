@@ -109,6 +109,7 @@ class Constant < Value
   end
   
   def to_i
+    #TODO: use jit_value_get_X_constant
     @val.to_i
   end
 end
