@@ -23,6 +23,7 @@ module LibJIT
   
   attach_function :jit_type_create_signature, [:jit_abi_t, :pointer, :pointer, :int, :int], :pointer
   attach_function :jit_type_get_abi, [:pointer], :int
+  attach_function :jit_type_get_size, [:pointer], :ulong
   
   attach_function :jit_type_from_string, [:string], :pointer
   

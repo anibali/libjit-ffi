@@ -86,5 +86,27 @@ describe '#pointer?' do
   end
 end
 
+describe '#size' do
+  subject { @type.size }
+  
+  { :uint8 => 1,
+    :int8 => 1,
+    :uint16 => 2,
+    :int16 => 2,
+    :uint32 => 4,
+    :int32 => 4,
+    :uint64 => 8,
+    :int64 => 8,
+    :float32 => 4,
+    :float64 => 8
+  }.each do |k, v|
+    context "when type is #{k.inspect}" do
+      before { @type = JIT::Type.new(k) }
+      
+      it { should eql(v) }
+    end
+  end
+end
+
 end
 

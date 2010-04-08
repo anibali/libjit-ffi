@@ -66,6 +66,11 @@ class Type
     [:uint8, :uint16, :uint32, :uint64].include? @sym
   end
   
+  # Returns the number of bytes that values of this type require for storage
+  def size
+    LibJIT.jit_type_get_size(@jit_t)
+  end
+  
   def to_ffi_type
     FFI_SYM_MAP[@sym]
   end
