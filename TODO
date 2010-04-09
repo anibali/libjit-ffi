@@ -1,0 +1,2 @@
+* Ensure efficient negation of constants (ie -f.const(:int8, 4) should
+  be as fast when executed as f.const(:int8, -4))

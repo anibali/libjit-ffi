@@ -40,6 +40,9 @@ module LibJIT
   attach_function :jit_insn_not, [:pointer, :pointer], :pointer
   attach_function :jit_insn_shl, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_shr, [:pointer, :pointer, :pointer], :pointer
+  attach_function :jit_insn_and, [:pointer, :pointer, :pointer], :pointer
+  attach_function :jit_insn_xor, [:pointer, :pointer, :pointer], :pointer
+  attach_function :jit_insn_or, [:pointer, :pointer, :pointer], :pointer
   # Standard arithmetic
   attach_function :jit_insn_neg, [:pointer, :pointer], :pointer
   attach_function :jit_insn_mul, [:pointer, :pointer, :pointer], :pointer
@@ -61,8 +64,16 @@ module LibJIT
   attach_function :jit_insn_acos, [:pointer, :pointer], :pointer
   attach_function :jit_insn_asin, [:pointer, :pointer], :pointer
   attach_function :jit_insn_atan, [:pointer, :pointer], :pointer
+  #TODO: more...
   
   attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
+  attach_function :jit_insn_load_relative, [:pointer, :pointer, :long, :pointer], :pointer
+  attach_function :jit_insn_store_relative, [:pointer, :pointer, :long, :pointer], :int
+  
+  attach_function :jit_insn_address_of, [:pointer, :pointer], :pointer
+  attach_function :jit_value_set_addressable, [:pointer], :void
+  attach_function :jit_value_is_addressable, [:pointer], :int
+  
   attach_function :jit_undef_label, [], :int
   attach_function :jit_insn_label, [:pointer, :pointer], :void
   attach_function :jit_insn_branch, [:pointer, :pointer], :void
@@ -71,6 +82,7 @@ module LibJIT
   
   attach_function :jit_value_get_param, [:pointer, :int], :pointer
   attach_function :jit_value_create, [:pointer, :pointer], :pointer
+  attach_function :jit_value_get_type, [:pointer], :pointer
   
   # Constants
   attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int64], :pointer

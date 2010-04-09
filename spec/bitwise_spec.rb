@@ -6,7 +6,7 @@ before do
   @context = JIT::Context.new
 end
 
-describe "bitwise not" do
+describe "bitwise NOT" do
   context "when type is 'uint8'" do
     before do
       @func = @context.build_function [:uint8], :uint8 do |f|
@@ -33,6 +33,63 @@ describe "bitwise not" do
       context "and value is #{x}" do
         subject { @func[x] }
         it { should eql((2**16 - 1) - x) }
+      end
+    end
+  end
+end
+
+describe "bitwise AND" do
+  context "when type is 'uint8'" do
+    before do
+      @func = @context.build_function [:uint8, :uint8], :uint8 do |f|
+        f.return(f.arg(0) & f.arg(1))
+      end
+    end
+    
+    [%w[101010 011], %w[10100 111], %w[110 11010]].each do |xs|
+      xs = xs.map {|x| x.to_i(2)}
+      
+      context "and values are #{xs.inspect}" do
+        subject { @func[*xs] }
+        it { should eql(xs[0] & xs[1]) }
+      end
+    end
+  end
+end
+
+describe "bitwise XOR" do
+  context "when type is 'uint8'" do
+    before do
+      @func = @context.build_function [:uint8, :uint8], :uint8 do |f|
+        f.return(f.arg(0) ^ f.arg(1))
+      end
+    end
+    
+    [%w[101010 011], %w[10100 111], %w[110 11010]].each do |xs|
+      xs = xs.map {|x| x.to_i(2)}
+      
+      context "and values are #{xs.inspect}" do
+        subject { @func[*xs] }
+        it { should eql(xs[0] ^ xs[1]) }
+      end
+    end
+  end
+end
+
+describe "bitwise OR" do
+  context "when type is 'uint8'" do
+    before do
+      @func = @context.build_function [:uint8, :uint8], :uint8 do |f|
+        f.return(f.arg(0) | f.arg(1))
+      end
+    end
+    
+    [%w[101010 011], %w[10100 111], %w[110 11010]].each do |xs|
+      xs = xs.map {|x| x.to_i(2)}
+      
+      context "and values are #{xs.inspect}" do
+        subject { @func[*xs] }
+        it { should eql(xs[0] | xs[1]) }
       end
     end
   end

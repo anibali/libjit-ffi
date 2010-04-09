@@ -5,8 +5,8 @@ class Value
   def initialize(function, type)
     raise ArgumentError.new "Function can't be nil" if function.nil?
     @function = function
-    @type = Type.create type
-    @jit_t = LibJIT.jit_value_create(@function.jit_t, @type.jit_t)
+    type = Type.create type
+    @jit_t = LibJIT.jit_value_create(@function.jit_t, type.jit_t)
   end
   
   def self.wrap(function, jit_t)
@@ -19,6 +19,7 @@ class Value
   
   def store(other)
     LibJIT.jit_insn_store(@function.jit_t, @jit_t, other.jit_t)
+    self
   end
   
   def <(other)
@@ -57,6 +58,18 @@ class Value
     wrap_value LibJIT.jit_insn_shr(@function.jit_t, @jit_t, other.jit_t)
   end
   
+  def &(other)
+    wrap_value LibJIT.jit_insn_and(@function.jit_t, @jit_t, other.jit_t)
+  end
+  
+  def ^(other)
+    wrap_value LibJIT.jit_insn_xor(@function.jit_t, @jit_t, other.jit_t)
+  end
+  
+  def |(other)
+    wrap_value LibJIT.jit_insn_or(@function.jit_t, @jit_t, other.jit_t)
+  end
+  
   def -@
     wrap_value LibJIT.jit_insn_neg(@function.jit_t, @jit_t)
   end
@@ -79,6 +92,19 @@ class Value
   
   def %(other)
     wrap_value LibJIT.jit_insn_rem(@function.jit_t, @jit_t, other.jit_t)
+  end
+  
+  def address
+    raise JIT::Error.new("Value is not addressable!") unless addressable?
+    wrap_value LibJIT.jit_insn_address_of(@function.jit_t, @jit_t)
+  end
+  
+  def addressable?
+    LibJIT.jit_value_is_addressable(@jit_t) != 0
+  end
+  
+  def set_addressable
+    LibJIT.jit_value_set_addressable(@jit_t)
   end
   
   def to_bool
