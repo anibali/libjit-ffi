@@ -5,7 +5,7 @@ class Value
   def initialize(function, type)
     raise ArgumentError.new "Function can't be nil" if function.nil?
     @function = function
-    @type = Type.new type
+    @type = Type.create type
     @jit_t = LibJIT.jit_value_create(@function.jit_t, @type.jit_t)
   end
   
@@ -95,7 +95,7 @@ class Constant < Value
   def initialize(function, type, val)
     raise ArgumentError.new "Function can't be nil" if function.nil?
     @function = function
-    @type = Type.new type
+    @type = Type.create type
     @val = val
     
     @jit_t = case @type.to_sym

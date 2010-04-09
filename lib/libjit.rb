@@ -22,7 +22,8 @@ module LibJIT
   attach_function :jit_context_build_end, [:pointer], :void
   
   attach_function :jit_type_create_signature, [:jit_abi_t, :pointer, :pointer, :int, :int], :pointer
-  attach_function :jit_type_get_abi, [:pointer], :int
+  attach_function :jit_type_create_pointer, [:pointer, :int], :pointer
+  attach_function :jit_type_get_abi, [:pointer], :jit_abi_t
   attach_function :jit_type_get_size, [:pointer], :ulong
   
   attach_function :jit_type_from_string, [:string], :pointer
@@ -84,11 +85,11 @@ module JIT
     @bound = {}
     
     def self.bind name, param_types, return_type
-      param_types = param_types.map {|t| Type.new t}
-      return_type = Type.new return_type
+      param_types = param_types.map {|t| Type.create t}
+      return_type = Type.create return_type
       
       ptr = attach_function(name, param_types.map {|t| t.to_ffi_type}, return_type.to_ffi_type)
-      sig = Signature.new(param_types, return_type)
+      sig = SignatureType.new(param_types, return_type)
       
       @bound[name] = [ptr, sig]
     end

@@ -1,30 +1,11 @@
 module JIT
-class Signature
-  attr_reader :jit_t, :param_types, :return_type
-  
-  def initialize(param_types, return_type, abi=:cdecl)
-    @param_types = param_types.map {|t| Type.new t}
-    @return_type = Type.new(return_type)
-    
-    n_params = @param_types.length
-    
-    return_type = @return_type.jit_t
-    
-    param_types = @param_types.map {|t| t.jit_t}
-    ptr = FFI::MemoryPointer.new(:pointer, n_params)
-    ptr.put_array_of_pointer 0, param_types
-    param_types = ptr
-    
-    @jit_t = LibJIT.jit_type_create_signature(abi, return_type, param_types, n_params, 1)
-  end
-end
 
 class Function
   attr_reader :jit_t
   attr_reader :signature
   
   def initialize(param_types, return_type)
-    @signature = Signature.new(param_types, return_type)
+    @signature = SignatureType.new(param_types, return_type)
     @jit_t = LibJIT.jit_function_create(Context.current.jit_t, @signature.jit_t)
     @break_labels = []
   end
@@ -79,7 +60,7 @@ class Function
   end
   
   def declare(type)
-    wrap_value LibJIT.jit_value_create(@jit_t, Type.new(type).jit_t)
+    wrap_value LibJIT.jit_value_create(@jit_t, Type.create(type).jit_t)
   end
   
   def return(value=nil)
@@ -211,4 +192,6 @@ class Function
     Value.wrap(self, jit_t)
   end
 end
+
 end
+
