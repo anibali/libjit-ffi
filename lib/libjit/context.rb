@@ -19,6 +19,8 @@ class Context
   end
   
   def destroy
+    return if destroyed?
+    build_end if building?
     LibJIT.jit_context_destroy @jit_t
     @jit_t = nil
   end
@@ -53,6 +55,10 @@ class Context
   def build_end
     @@current = nil
     LibJIT.jit_context_build_end @jit_t
+  end
+  
+  def building?
+    @@current == self
   end
   
   # Equivalent to context.build { context.function(*args, &block) }

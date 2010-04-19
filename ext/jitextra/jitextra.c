@@ -1,7 +1,7 @@
 /*
   Make a nice static library:
-  $ cc -c -o jitplus.o jitplus.c
-  $ ld -shared -static -o libjitplus.so jitplus.o -lc -ljit
+  $ cc -c -o jitextra.o jitextra.c
+  $ ld -shared -static -o libjitextra.so jitextra.o -lc -ljit
 */
 
 #include <stdio.h>

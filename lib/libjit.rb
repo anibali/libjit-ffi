@@ -12,19 +12,33 @@ module LibJIT
   extend FFI::Library
   
   cur_path = Pathname.new(__FILE__).expand_path.dirname
-  ffi_lib cur_path.join("libjitplus.so").to_s
+  ffi_lib cur_path.join("libjitextra.so").to_s
   
   enum :jit_abi_t, [:cdecl, :vararg, :stdcall, :fastcall]
+  enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
+    :int32, :uint32, :intn, :uintn, :int64, :uint64, :float32, :float64,
+    :floatn, :struct, :union, :signature, :pointer]
   
   attach_function :jit_context_create, [], :pointer
   attach_function :jit_context_destroy, [:pointer], :void
   attach_function :jit_context_build_start, [:pointer], :void
   attach_function :jit_context_build_end, [:pointer], :void
   
-  attach_function :jit_type_create_signature, [:jit_abi_t, :pointer, :pointer, :int, :int], :pointer
-  attach_function :jit_type_create_pointer, [:pointer, :int], :pointer
+  attach_function :jit_type_create_struct, [:pointer, :uint, :int], :pointer
+  attach_function :jit_type_get_field, [:pointer, :uint], :pointer
+  attach_function :jit_type_get_offset, [:pointer, :uint], :ulong
+  attach_function :jit_type_create_signature, [:jit_abi_t, :pointer, :pointer, :uint, :int], :pointer
   attach_function :jit_type_get_abi, [:pointer], :jit_abi_t
+  attach_function :jit_type_num_params, [:pointer], :uint
+  attach_function :jit_type_get_return, [:pointer], :pointer
+  attach_function :jit_type_get_param, [:pointer, :uint], :pointer
+  attach_function :jit_type_create_pointer, [:pointer, :int], :pointer
+  attach_function :jit_type_get_ref, [:pointer], :pointer
   attach_function :jit_type_get_size, [:pointer], :ulong
+  attach_function :jit_type_is_struct, [:pointer], :bool
+  attach_function :jit_type_is_pointer, [:pointer], :bool
+  attach_function :jit_type_is_signature, [:pointer], :bool
+  attach_function :jit_type_get_kind, [:pointer], :jit_kind_t
   
   attach_function :jit_type_from_string, [:string], :pointer
   

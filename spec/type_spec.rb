@@ -20,8 +20,8 @@ describe '.create' do
     
     it "should produce expected Type" do
       @type.pointer?.should be_true
-      @type.target_type.pointer?.should be_true
-      @type.target_type.target_type.to_sym.should eql(:int8)
+      @type.ref_type.pointer?.should be_true
+      @type.ref_type.ref_type.to_sym.should eql(:int8)
     end
   end
 end

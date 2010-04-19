@@ -3,8 +3,8 @@ require 'rake/clean'
 CLEAN.include("*.o")
 CLOBBER.include("*.so")
 
-lib_name = "libjitplus.so"
-objs = %w[jitplus]
+lib_name = "libjitextra.so"
+objs = %w[jitextra]
 libs = %w[c jit]
 
 LD = "ld"

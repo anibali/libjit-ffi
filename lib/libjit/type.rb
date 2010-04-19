@@ -3,23 +3,60 @@ module JIT
 class Type
   attr_reader :jit_t
   
-  def self.create *args
-    if args[0].is_a? Type
-      return args[0]
-    elsif args[0] == :pointer
-      return PointerType.new(*args[1..-1])
-    elsif args[0] == :signature
-      raise NotImplementedError.new("TODO: enable signature creation via Type.create")
-    else
-      return SimpleType.new(*args)
+  class << self
+    def create *args
+      return args.first if args.first.is_a? Type
+      
+      case args.first.to_sym
+      when :pointer
+        PointerType.new(*args[1..-1])
+      when :signature
+        SignatureType.new(*args[1..-1])
+      when :struct, :structure
+        StructType.new(*args[1..-1])
+      when :void
+        VoidType.new(*args[1..-1])
+      else
+        PrimitiveType.new(*args)
+      end
+    end
+    
+    def wrap jit_t
+      t = Type.allocate
+      t.instance_variable_set(:@jit_t, jit_t)
+      
+      if t.struct?
+        StructType.wrap jit_t
+      elsif t.pointer?
+        PointerType.wrap jit_t
+      elsif t.signature?
+        StructType.wrap jit_t
+      else
+        PrimitiveType.wrap jit_t
+      end
     end
   end
   
-  [:void?, :pointer?, :floating_point?, :integer?, :signed?,
-   :unsigned?, :signature?].each do |method|
+  [:void?, :floating_point?, :integer?, :signed?, :unsigned?, :primitive?].each do |method|
     define_method method do
       false
     end
+  end
+  
+  def structure?
+    struct?
+  end
+  
+  def struct?
+    LibJIT.jit_type_is_struct(@jit_t)
+  end
+  
+  def pointer?
+    LibJIT.jit_type_is_pointer(@jit_t)
+  end
+  
+  def signature?
+    LibJIT.jit_type_is_signature(@jit_t)
   end
   
   # Returns the number of bytes that values of this type require for storage
@@ -28,9 +65,9 @@ class Type
   end
 end
 
-# SimpleType represents basic types such as ints, floats, void and pointers
+# PrimitiveType represents basic types such as ints, floats, void and pointers
 # without target types
-class SimpleType < Type
+class PrimitiveType < Type
   JIT_SYM_MAP = {
     :int8 => :sbyte,
     :uint8 => :ubyte,
@@ -41,8 +78,7 @@ class SimpleType < Type
     :int64 => :long,
     :uint64 => :ulong,
     :float32 => :float32,
-    :float64 => :float64,
-    :void => :void
+    :float64 => :float64
   }.freeze
   
   FFI_SYM_MAP = {
@@ -55,8 +91,7 @@ class SimpleType < Type
     :int64 => :int64,
     :uint64 => :uint64,
     :float32 => :float,
-    :float64 => :double,
-    :void => :void
+    :float64 => :double
   }.freeze
   
   def initialize sym
@@ -65,42 +100,65 @@ class SimpleType < Type
     @jit_t = LibJIT.jit_type_from_string(JIT_SYM_MAP[@sym].to_s)
     
     if @jit_t.null?
-      raise JIT::TypeError.new("'#{@sym}' is not a supported simple type")
+      raise JIT::UnsupportedTypeError.new("'#{@sym}' is not a supported primitive type")
     end
   end
   
-  def void?
-    @sym == :void
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
+  end
+  
+  def primitive?
+    true
   end
   
   def floating_point?
-    [:float32, :float64].include? @sym
+    [:float32, :float64].include? to_sym
   end
   
   def integer?
-    [:int8, :int16, :int32, :int64, :uint8, :uint16, :uint32, :uint64].include? @sym
+    [:int8, :int16, :int32, :int64, :uint8, :uint16, :uint32, :uint64].include? to_sym
   end
   
   def signed?
-    [:int8, :int16, :int32, :int64, :float32, :float64].include? @sym
+    [:int8, :int16, :int32, :int64, :float32, :float64].include? to_sym
   end
   
   def unsigned?
-    [:uint8, :uint16, :uint32, :uint64].include? @sym
+    [:uint8, :uint16, :uint32, :uint64].include? to_sym
   end
   
   def to_ffi_type
-    FFI_SYM_MAP[@sym]
+    FFI_SYM_MAP[to_sym]
   end
   
   def to_sym
-    return @sym
+    @sym ||= LibJIT.jit_type_get_kind(@jit_t)
+  end
+end
+
+class VoidType < Type
+  def initialize
+    @jit_t = LibJIT.jit_type_from_string('void')
+  end  
+  
+  # True
+  def void?
+    true
+  end
+  
+  def to_ffi_type
+    :void
+  end
+  
+  def to_sym
+    :void
   end
 end
 
 class PointerType < Type
-  attr_reader :target_type  
-  
   # 'PointerType.new' => void pointer
   # 'PointerType.new(:void)' => void pointer
   # 'PointerType.new(:pointer)' => pointer to void pointer
@@ -110,17 +168,27 @@ class PointerType < Type
   # 'PointerType.new(:int8, :pointer, :int16)' => don't do this! (everything after :int8 is ignored resulting in a pointer to int8)
   def initialize(*args)
     # Defaults to void pointer
-    @target_type = Type.create :void
+    @ref_type = Type.create :void
     
     args.reverse.each do |t|
       if t.to_sym == :pointer
-        @target_type = self.class.new(@target_type)
+        @ref_type = self.class.new(@ref_type)
       else
-        @target_type = Type.create t
+        @ref_type = Type.create t
       end
     end
     
-    @jit_t = LibJIT.jit_type_create_pointer(@target_type.jit_t, 1)
+    @jit_t = LibJIT.jit_type_create_pointer(@ref_type.jit_t, 1)
+  end
+  
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
+  end
+  
+  def ref_type
+    @ref_type ||= Type.wrap(LibJIT.jit_type_get_ref(@jit_t))
   end
   
   # True
@@ -138,8 +206,6 @@ class PointerType < Type
 end
 
 class SignatureType < Type
-  attr_reader :param_types, :return_type
-  
   def initialize(param_types, return_type, abi=:cdecl)
     @param_types = param_types.map {|t| Type.create t}
     @return_type = Type.create(return_type)
@@ -151,13 +217,32 @@ class SignatureType < Type
     param_types = @param_types.map {|t| t.jit_t}
     ptr = FFI::MemoryPointer.new(:pointer, n_params)
     ptr.put_array_of_pointer 0, param_types
-    param_types = ptr
     
-    @jit_t = LibJIT.jit_type_create_signature(abi, return_type, param_types, n_params, 1)
+    @jit_t = LibJIT.jit_type_create_signature(abi, return_type, ptr, n_params, 1)
+  end
+  
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
   end
   
   def abi
-    LibJIT.jit_type_get_abi(@jit_t)
+    @abi ||= LibJIT.jit_type_get_abi(@jit_t)
+  end
+  
+  def param_types
+    if @param_types.nil?
+      @param_types = []
+      LibJIT.jit_type_num_params(@jit_t).times do |i|
+        @param_types << Type.wrap(LibJIT.jit_type_get_param(@jit_t, i))
+      end
+    end
+    @param_types
+  end
+  
+  def return_type
+    @return_type ||= Type.wrap(LibJIT.jit_type_get_return(@jit_t))
   end
   
   # True
@@ -167,6 +252,36 @@ class SignatureType < Type
   
   def to_ffi_type
     raise JIT::TypeError.new("Can't get FFI type from a signature")
+  end
+end
+
+class StructType < Type
+  def initialize *args
+    field_types = args.map {|t| Type.create(t).jit_t}
+    
+    n_fields = field_types.length
+    ptr = FFI::MemoryPointer.new(:pointer, n_fields)
+    ptr.put_array_of_pointer 0, field_types
+    
+    @jit_t = LibJIT.jit_type_create_struct(ptr, n_fields, 1)
+  end
+  
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
+  end
+  
+  def offset index
+    LibJIT.jit_type_get_offset(@jit_t, index)
+  end
+  
+  def field_jit_t index
+    LibJIT.jit_type_get_field(@jit_t, index)
+  end
+  
+  def struct?
+    true
   end
 end
 

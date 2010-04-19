@@ -6,7 +6,7 @@ require 'pathname'
 require 'fileutils'
 
 CLEAN.include("**/*.o")
-CLOBBER.include("**/*.so")
+CLOBBER.include("**/*.so", "pkg", "doc")
 
 Jeweler::Tasks.new do |s|
   s.name = "libjit-ffi"
@@ -34,16 +34,16 @@ desc "Compile native extensions for libjit-ffi."
 task :compile => ["compile:jitplus"]
 
 namespace :compile do
-  desc "Compile jitplus."
+  desc "Compile jitextra."
   task :jitplus do
-    src_path = cur_path.join("ext", "jitplus")
+    src_path = cur_path.join("ext", "jitextra")
     
     Dir.chdir src_path.realpath do
       sh "rake"
     end
     
-    lib_file_src = src_path.join("libjitplus.so").realpath
-    lib_file_dest = cur_path.join("lib", "libjitplus.so").to_s
+    lib_file_src = src_path.join("libjitextra.so").realpath
+    lib_file_dest = cur_path.join("lib", "libjitextra.so").to_s
     FileUtils.cp lib_file_src, lib_file_dest
   end
 end
@@ -51,7 +51,7 @@ end
 desc "Run all RSpec examples."
 Spec::Rake::SpecTask.new('spec') do |t|
   t.spec_files = FileList['spec/**/*.rb']
-  t.spec_opts << '--colour'
+  t.spec_opts << '--colour --format nested'
   t.ruby_opts << '-rrubygems'
 end
 

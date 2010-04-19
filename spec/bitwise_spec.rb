@@ -6,22 +6,24 @@ before do
   @context = JIT::Context.new
 end
 
-describe "bitwise NOT" do
-  context "when type is 'uint8'" do
-    before do
-      @func = @context.build_function [:uint8], :uint8 do |f|
-        f.return ~f.arg(0)
-      end
-    end
-    
-    [0, 2, 5, 63, 127, 200, 255].each do |x|
-      context "and value is #{x}" do
-        subject { @func[x] }
-        it { should eql((2**8 - 1) - x) }
-      end
+context "when type is 'uint8'" do
+describe "#~" do
+  let :func do
+    @context.build_function [:uint8], :uint8 do |f|
+      f.return ~f.arg(0)
     end
   end
   
+  [0, 2, 5, 63, 127, 200, 255].each do |x|
+    context "when evaluating '~#{x}'" do
+      subject { func[x] }
+      it { should eql((2**8 - 1) - x) }
+    end
+  end
+end
+end
+
+describe "bitwise NOT" do
   context "when type is 'uint16'" do
     before do
       @func = @context.build_function [:uint16], :uint16 do |f|

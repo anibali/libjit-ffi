@@ -1,20 +1,45 @@
 module JIT
+
 class Value
   attr_reader :jit_t
   
-  def initialize(function, type)
-    raise ArgumentError.new "Function can't be nil" if function.nil?
-    @function = function
-    type = Type.create type
-    @jit_t = LibJIT.jit_value_create(@function.jit_t, type.jit_t)
+  def self.create(function, *args)
+    raise ArgumentError.new "Function is required" unless function.is_a? Function
+    raise ArgumentError.new "Type is required" if args.empty?
+    type = Type.create *args
+    wrap function, LibJIT.jit_value_create(function.jit_t, type.jit_t)
   end
   
   def self.wrap(function, jit_t)
+    #TODO: infer function from jit_t, and remove function argument
     raise ArgumentError.new "Function can't be nil" if function.nil?
-    value = self.allocate
+    
+    v = Value.allocate
+    v.instance_variable_set(:@function, function)
+    v.instance_variable_set(:@jit_t, jit_t)
+    
+    type = v.type
+    value = if type.struct?
+      Struct.allocate
+    elsif type.pointer?
+      Pointer.allocate
+    elsif type.void?
+      Void.allocate
+    else
+      Primitive.allocate
+    end
+    
     value.instance_variable_set(:@function, function)
     value.instance_variable_set(:@jit_t, jit_t)
-    return value
+    # Not strictly necessary to set @type, but we might as well so that it
+    # doesn't need to be inferred later on
+    value.instance_variable_set(:@type, type)
+    
+    value
+  end
+  
+  def type
+    @type ||= Type.wrap LibJIT.jit_value_get_type(jit_t)
   end
   
   def store(other)
@@ -22,6 +47,30 @@ class Value
     self
   end
   
+  # Gets address of variable (will be made addressable if not already).
+  def address
+    wrap_value LibJIT.jit_insn_address_of(@function.jit_t, @jit_t)
+  end
+  
+  def addressable?
+    LibJIT.jit_value_is_addressable(@jit_t) != 0
+  end
+  
+  def set_addressable
+    LibJIT.jit_value_set_addressable(@jit_t)
+  end
+  
+  def to_bool
+    wrap_value LibJIT.jit_insn_to_bool(@function.jit_t, @jit_t)
+  end
+  
+  private
+  def wrap_value val
+    Value.wrap @function, val
+  end
+end
+
+class Primitive < Value
   def <(other)
     wrap_value LibJIT.jit_insn_lt(@function.jit_t, @jit_t, other.jit_t)
   end
@@ -93,31 +142,26 @@ class Value
   def %(other)
     wrap_value LibJIT.jit_insn_rem(@function.jit_t, @jit_t, other.jit_t)
   end
-  
-  def address
-    raise JIT::Error.new("Value is not addressable!") unless addressable?
-    wrap_value LibJIT.jit_insn_address_of(@function.jit_t, @jit_t)
+end
+
+class Void < Value
+end
+
+class Pointer < Primitive
+  #TODO: add dereference function
+end
+
+class Struct < Value
+  def [](index)
+    Value.wrap @function, LibJIT.jit_insn_load_relative(@function.jit_t, self.address.jit_t, @type.offset(index), @type.field_jit_t(index))
   end
   
-  def addressable?
-    LibJIT.jit_value_is_addressable(@jit_t) != 0
-  end
-  
-  def set_addressable
-    LibJIT.jit_value_set_addressable(@jit_t)
-  end
-  
-  def to_bool
-    wrap_value LibJIT.jit_insn_to_bool(@function.jit_t, @jit_t)
-  end
-  
-  private
-  def wrap_value val
-    Value.wrap @function, val
+  def []=(index, value)
+    LibJIT.jit_insn_store_relative(@function.jit_t, self.address.jit_t, @type.offset(index), value.jit_t)
   end
 end
 
-class Constant < Value
+class Constant < Primitive
   def initialize(function, type, val)
     raise ArgumentError.new "Function can't be nil" if function.nil?
     @function = function
@@ -139,5 +183,6 @@ class Constant < Value
     @val.to_i
   end
 end
+
 end
 

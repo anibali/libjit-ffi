@@ -10,26 +10,29 @@ describe JIT::Context do
   before do
     @context = JIT::Context.new
   end
+  subject { @context }
   
   context "when holding build lock" do
     before do
       @context.build_start
     end
   
-    it "should not be able to acquire build lock" do
-      lambda do
+    it "should not be able to acquire build lock again" do
+      expect {
         @context.build {}
-      end.should raise_exception JIT::Error
+      }.to raise_exception JIT::Error
     end
     
     it "should be able to create functions" do
-      lambda do
+      expect {
         func = @context.function [], :void do |f|
           f.return
         end
         func.call
-      end.should_not raise_exception
+      }.to_not raise_exception
     end
+    
+    its("destroyed?") { should be_false }
     
     after do
       @context.build_end
@@ -42,14 +45,16 @@ describe JIT::Context do
     end
     
     it "should not be able to acquire build lock" do
-      lambda do
+      expect {
         @context.build {|c|}
-      end.should raise_exception(JIT::Error)
+      }.to raise_exception(JIT::Error)
     end
+    
+    its("destroyed?") { should be_true }
   end
   
   after do
-    @context.destroy unless @context.destroyed?
+    @context.destroy
   end
 end
 

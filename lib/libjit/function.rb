@@ -59,8 +59,9 @@ class Function
     wrap_value LibJIT.jit_value_get_param(@jit_t, i.to_i)
   end
   
-  def declare(type)
-    wrap_value LibJIT.jit_value_create(@jit_t, Type.create(type).jit_t)
+  # arguments represent a Type
+  def declare(*args)
+    Value.create(self, *args)
   end
   
   def return(value=nil)
@@ -69,10 +70,6 @@ class Function
   
   def const(type, val)
     Constant.new self, type, val
-  end
-  
-  def value type
-    Value.new(self, type)
   end
   
   def label
