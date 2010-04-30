@@ -5,8 +5,8 @@ describe JIT::Function do
   
   it "should handle 'if' statements" do
     pos_test = context.build_function [:int32], :int8 do |f|
-      zero = f.const(:int8, 0)
-      one = f.const(:int8, 1)
+      zero = f.const(0, :int8)
+      one = f.const(1, :int8)
       
       res = f.declare :int8
       res.store zero
@@ -25,8 +25,8 @@ describe JIT::Function do
   
   it "should handle 'if-else' statements" do
     pos_test = context.build_function  [:int32], :int8 do |f|
-      zero = f.const(:int8, 0)
-      one = f.const(:int8, 1)
+      zero = f.const(0, :int8)
+      one = f.const(1, :int8)
       
       res = f.declare :int8
       
@@ -47,8 +47,8 @@ describe JIT::Function do
   
   it "should handle 'unless' statements" do
     pos_test = context.build_function [:int32], :int8 do |f|
-      zero = f.const(:int8, 0)
-      one = f.const(:int8, 1)
+      zero = f.const(0, :int8)
+      one = f.const(1, :int8)
       
       res = f.declare :int8
       res.store zero
@@ -67,8 +67,8 @@ describe JIT::Function do
   
   it "should handle 'unless-else' statements" do
     pos_test = context.build_function [:int32], :int8 do |f|
-      zero = f.const(:int8, 0)
-      one = f.const(:int8, 1)
+      zero = f.const(0, :int8)
+      one = f.const(1, :int8)
       
       res = f.declare :int8
       

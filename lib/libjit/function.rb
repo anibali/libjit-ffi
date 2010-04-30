@@ -68,8 +68,8 @@ class Function
     LibJIT.jit_insn_return(@jit_t, value ? value.jit_t : nil)
   end
   
-  def const(type, val)
-    Constant.new self, type, val
+  def const(val, *type)
+    Constant.new self, val, *type
   end
   
   def label
@@ -98,6 +98,22 @@ class Function
     args_ptr.put_array_of_pointer 0, args
   
     wrap_value LibJIT.jit_insn_call_native(@jit_t, nil, func, signature.jit_t, args_ptr, args.length, 0, 0)
+  end
+
+  def c
+    @c ||= C.new(self)
+  end
+
+  def null
+    const(0, :int8)
+  end
+
+  def true
+    const(1, :int8)
+  end
+
+  def false
+    const(0, :int8)
   end
   
   def jmp label

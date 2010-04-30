@@ -17,7 +17,7 @@ Jeweler::Tasks.new do |s|
   
   s.add_dependency('ffi')
   
-  s.files = %w(LICENSE README Rakefile) + Dir.glob("{lib,spec}/**/*")
+  s.files = %w(LICENSE README Rakefile VERSION) + Dir.glob("{lib,spec}/**/*")
   s.require_path = "lib"
   
   s.has_rdoc = true

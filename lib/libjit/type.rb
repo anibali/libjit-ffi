@@ -171,7 +171,7 @@ class PointerType < Type
     @ref_type = Type.create :void
     
     args.reverse.each do |t|
-      if t.to_sym == :pointer
+      if [:pointer, 'pointer'].include? t
         @ref_type = self.class.new(@ref_type)
       else
         @ref_type = Type.create t
@@ -276,8 +276,8 @@ class StructType < Type
     LibJIT.jit_type_get_offset(@jit_t, index)
   end
   
-  def field_jit_t index
-    LibJIT.jit_type_get_field(@jit_t, index)
+  def field_type index
+    Type.wrap LibJIT.jit_type_get_field(@jit_t, index)
   end
   
   def struct?

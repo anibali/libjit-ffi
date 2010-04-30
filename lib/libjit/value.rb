@@ -31,11 +31,11 @@ class Value
     
     value.instance_variable_set(:@function, function)
     value.instance_variable_set(:@jit_t, jit_t)
-    # Not strictly necessary to set @type, but we might as well so that it
-    # doesn't need to be inferred later on
+    # It's not strictly necessary to set @type, but we might as well
+    # (caching FTW!)
     value.instance_variable_set(:@type, type)
     
-    value
+    return value
   end
   
   def type
@@ -63,11 +63,19 @@ class Value
   def to_bool
     wrap_value LibJIT.jit_insn_to_bool(@function.jit_t, @jit_t)
   end
+
+  def cast *type
+    type = Type.create *type
+    wrap_value LibJIT.jit_insn_convert(@function.jit_t, jit_t, type.jit_t, 0)
+  end
   
   private
   def wrap_value val
     Value.wrap @function, val
   end
+end
+
+class Void < Value
 end
 
 class Primitive < Value
@@ -144,16 +152,30 @@ class Primitive < Value
   end
 end
 
-class Void < Value
-end
-
 class Pointer < Primitive
-  #TODO: add dereference function
+  # Retrieves the value being pointed to. If an explicit type is not specified
+  # it will be inferred.
+  def dereference(type=nil)
+    ref_type_jit_t = nil
+    if type.nil?
+      ref_type_jit_t = LibJIT.jit_type_get_ref(self.type.jit_t)
+    else
+      ref_type_jit_t = Type.create(type).jit_t
+    end
+    
+    wrap_value LibJIT.jit_insn_load_relative(@function.jit_t, jit_t, 0, ref_type_jit_t)
+  end
+
+  # Stores a value at the address referenced by this pointer. An address offset
+  # may optionally be set with a Ruby integer.
+  def mstore(value, offset=0)
+    LibJIT.jit_insn_store_relative(@function.jit_t, self.jit_t, offset, value.jit_t)
+  end
 end
 
 class Struct < Value
   def [](index)
-    Value.wrap @function, LibJIT.jit_insn_load_relative(@function.jit_t, self.address.jit_t, @type.offset(index), @type.field_jit_t(index))
+    wrap_value LibJIT.jit_insn_load_relative(@function.jit_t, self.address.jit_t, @type.offset(index), @type.field_type(index).jit_t)
   end
   
   def []=(index, value)
@@ -162,25 +184,44 @@ class Struct < Value
 end
 
 class Constant < Primitive
-  def initialize(function, type, val)
+  def initialize(function, val, *type)
     raise ArgumentError.new "Function can't be nil" if function.nil?
     @function = function
-    @type = Type.create type
-    @val = val
+    @type = Type.create *type
     
     @jit_t = case @type.to_sym
     when :uint8, :int8, :uint16, :int16, :uint32, :int32
+      # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
+      val = [val].pack('I').unpack('i').first if @type.unsigned?
+
       LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
     when :uint64, :int64
-      raise NotImplementedError.new("TODO: Implement long constants")
+      # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
+      val = [val].pack('Q').unpack('q').first if @type.unsigned?
+      
+      LibJIT.jit_value_create_long_constant(@function.jit_t, @type.jit_t, val)
+    when :float32
+      raise NotImplementedError.new("TODO: float32 constant creation")
+    when :float64
+      raise NotImplementedError.new("TODO: float64 constant creation")
     else
       raise JIT::TypeError.new("'#{@sym}' is not a supported type for constant creation")
     end
   end
   
   def to_i
-    #TODO: use jit_value_get_X_constant
-    @val.to_i
+    @to_i ||= case type.to_sym
+    when :uint8, :int8, :uint16, :int16, :uint32, :int32
+      val = LibJIT.jit_value_get_nint_constant jit_t
+      # Turn unsigned integer into a signed one if appropriate
+      [val].pack('i').unpack('I').first if type.unsigned?
+    when :uint64, :int64
+      val = LibJIT.jit_value_get_long_constant jit_t
+      # Turn unsigned integer into a signed one if appropriate
+      [val].pack('q').unpack('Q').first if type.unsigned?
+    else
+      raise JIT::TypeError.new("Constant is not an integer")
+    end
   end
 end
 

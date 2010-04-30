@@ -10,9 +10,10 @@ require 'libjit/label'
 
 module LibJIT
   extend FFI::Library
+
+  LIB_PATH = Pathname.new(__FILE__).expand_path.dirname.join("libjitextra.so").to_s
   
-  cur_path = Pathname.new(__FILE__).expand_path.dirname
-  ffi_lib cur_path.join("libjitextra.so").to_s
+  ffi_lib LIB_PATH
   
   enum :jit_abi_t, [:cdecl, :vararg, :stdcall, :fastcall]
   enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
@@ -97,16 +98,20 @@ module LibJIT
   attach_function :jit_value_get_param, [:pointer, :int], :pointer
   attach_function :jit_value_create, [:pointer, :pointer], :pointer
   attach_function :jit_value_get_type, [:pointer], :pointer
+  attach_function :jit_insn_convert, [:pointer, :pointer, :pointer, :int], :pointer
   
   # Constants
-  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int64], :pointer
+  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int], :pointer
+  attach_function :jit_value_create_long_constant, [:pointer, :pointer, :long_long], :pointer
+  attach_function :jit_value_get_nint_constant, [:pointer], :int
+  attach_function :jit_value_get_long_constant, [:pointer], :long_long
 end
 
 module JIT
   module LibC
     extend FFI::Library
     
-    ffi_lib FFI::Platform::LIBC
+    ffi_lib FFI::Platform::LIBC, LibJIT::LIB_PATH
     
     @bound = {}
     
@@ -121,13 +126,39 @@ module JIT
     end
     
     def self.[] name
-      @bound[name]
+      @bound[name.to_sym]
     end
     
     bind :abs, [:int32], :int32
     bind :rand, [], :int32
     bind :srand, [:uint32], :void
     bind :time, [:pointer], :int64
+    bind :puts, [:pointer], :int32
+    bind :putchar, [:int32], :int32
+    bind :getchar, [], :int32
+
+    bind :jit_malloc, [:uint32], :pointer
+    @bound[:malloc] = @bound[:jit_malloc]
+    bind :jit_free, [:pointer], :void
+    @bound[:free] = @bound[:jit_free]
+  end
+
+  class C
+    def initialize(function)
+      @function = function
+    end
+
+    def time(ptr=@function.null)
+      call_native(:time, ptr)
+    end
+
+    def method_missing(*args)
+      call_native(*args)
+    end
+
+    def call_native(name, *args)
+      @function.call_native *(LibC[name] + args)
+    end
   end
 end
 

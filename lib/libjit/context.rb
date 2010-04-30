@@ -1,6 +1,9 @@
 module JIT
 class Context
   attr_reader :jit_t
+
+  @@default = nil
+  @@current = nil
   
   # Returns the Context currently used for building
   def self.current

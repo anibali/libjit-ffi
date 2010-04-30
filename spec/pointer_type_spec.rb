@@ -51,5 +51,14 @@ describe '#pointer?' do
   end
 end
 
+# Pointer to a pointer to an 8-bit integer
+context "PointerType.new(PointerType.new(:int8))" do
+  before { @type = JIT::PointerType.new(JIT::PointerType.new(:int8)) }
+  
+  its('pointer?') { @type.pointer?.should be_true }
+  its('ref_type.pointer?') { @type.ref_type.pointer?.should be_true }
+  its('ref_type.ref_type.size') { @type.ref_type.ref_type.size.should eql(1) }
+end
+
 end
 
