@@ -5,6 +5,7 @@ require 'libjit/errors'
 require 'libjit/type'
 require 'libjit/value'
 require 'libjit/context'
+require 'libjit/control_structures'
 require 'libjit/function'
 require 'libjit/label'
 

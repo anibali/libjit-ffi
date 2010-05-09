@@ -11,9 +11,9 @@ describe JIT::Function do
       res = f.declare :int8
       res.store zero
       
-      f.if(proc {f.arg(0) > zero}) do
+      f.if { f.arg(0) > zero }.do {
         res.store one
-      end
+      }.end
       
       f.return res
     end
@@ -30,12 +30,11 @@ describe JIT::Function do
       
       res = f.declare :int8
       
-      test = proc {f.arg(0) > zero}     # If arg(0) > 0
-      main_proc = proc {res.store one}  #   res = 1
-                                        # Else
-      else_proc = proc {res.store zero} #   res = 0
-      
-      f.if(test, else_proc, &main_proc)
+      f.if { f.arg(0) > zero }.do {
+        res.store one
+      }.else {
+        res.store zero
+      }.end
       
       f.return res
     end
@@ -53,9 +52,9 @@ describe JIT::Function do
       res = f.declare :int8
       res.store zero
       
-      f.unless(proc {f.arg(0) <= zero}) do
+      f.unless { f.arg(0) <= zero }.do {
         res.store one
-      end
+      }.end
       
       f.return res
     end
@@ -72,12 +71,11 @@ describe JIT::Function do
       
       res = f.declare :int8
       
-      test = proc {f.arg(0) <= zero}    # If arg(0) > 0
-      main_proc = proc {res.store one}  #   res = 1
-                                        # Else
-      else_proc = proc {res.store zero} #   res = 0
-      
-      f.unless(test, else_proc, &main_proc)
+      f.unless { f.arg(0) <= zero }.do {
+        res.store one
+      }.else {
+        res.store zero
+      }.end
       
       f.return res
     end

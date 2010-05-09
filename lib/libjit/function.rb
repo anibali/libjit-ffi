@@ -7,7 +7,6 @@ class Function
   def initialize(param_types, return_type)
     @signature = SignatureType.new(param_types, return_type)
     @jit_t = LibJIT.jit_function_create(Context.current.jit_t, @signature.jit_t)
-    @break_labels = []
   end
   
   def compile
@@ -128,77 +127,24 @@ class Function
     LibJIT.jit_insn_branch_if_not(@jit_t, cond.jit_t, label.jit_t)
   end
   
-  def if(test, else_proc=nil)
-    bottom = self.label
-    
-    if else_proc.nil?
-      jmp_if_not test.call, bottom
-      yield
-    else
-      else_lbl = self.label
-      jmp_if_not test.call, else_lbl
-      yield
-      jmp bottom
-      else_lbl.set
-      else_proc.call
-    end
-    
-    bottom.set
+  def if &condition
+    If.new self, &condition
   end
   
-  def unless(test, else_proc=nil)
-    bottom = self.label
-    
-    if else_proc.nil?
-      jmp_if test.call, bottom
-      yield
-    else
-      else_lbl = self.label
-      jmp_if test.call, else_lbl
-      yield
-      jmp bottom
-      else_lbl.set
-      else_proc.call
-    end
-    
-    bottom.set
+  def unless &condition
+    Unless.new self, &condition
   end
   
-  def while(test)
-    top = self.label
-    bottom = self.label
-    @break_labels.push bottom
-    jmp_if_not test.call, bottom
-    cond = declare :int8
-    
-    top.set
-    yield
-    cond.store test.call.to_bool
-    jmp_if cond, top
-    
-    bottom.set
-    @break_labels.pop
+  def while &condition
+    While.new self, &condition
   end
   
-  def until(test)
-    top = self.label
-    bottom = self.label
-    @break_labels.push bottom
-    jmp_if test.call, bottom
-    cond = declare :int8
-    
-    top.set
-    yield
-    cond.store test.call.to_bool
-    jmp_if_not cond, top
-    
-    bottom.set
-    @break_labels.pop
+  def until &condition
+    Until.new self, &condition
   end
   
   def break
-    raise "no loop to break out of" if @break_labels.empty?
-    jmp @break_labels.last
+    IterationStructure.break self
   end
   
   def wrap_value jit_t
