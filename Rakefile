@@ -2,11 +2,15 @@ require 'rubygems'
 require 'jeweler'
 require 'spec/rake/spectask'
 require 'rake/clean'
+require 'yard'
+
 require 'pathname'
 require 'fileutils'
 
 CLEAN.include("**/*.o")
 CLOBBER.include("**/*.so", "pkg", "doc")
+
+#TODO: Jeweler task for each platform
 
 Jeweler::Tasks.new do |s|
   s.name = "libjit-ffi"
@@ -53,5 +57,14 @@ Spec::Rake::SpecTask.new('spec') do |t|
   t.spec_files = FileList['spec/**/*.rb']
   t.spec_opts << '--colour --format nested'
   t.ruby_opts << '-rrubygems'
+end
+
+YARD::Rake::YardocTask.new do |t|
+  t.options = [
+    '--title', "libjit-ffi #{File.read 'VERSION'}",
+    '--readme', 'README',
+    '-m', 'markdown',
+    '--files', 'LICENSE'
+  ]
 end
 

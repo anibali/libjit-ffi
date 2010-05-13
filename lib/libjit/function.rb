@@ -2,11 +2,20 @@ module JIT
 
 class Function
   attr_reader :jit_t
-  attr_reader :signature
   
   def initialize(param_types, return_type)
     @signature = SignatureType.new(param_types, return_type)
     @jit_t = LibJIT.jit_function_create(Context.current.jit_t, @signature.jit_t)
+  end
+  
+  def self.wrap jit_t
+    function = self.allocate
+    function.instance_variable_set(:@jit_t, jit_t)
+    function
+  end
+  
+  def signature
+    @signature ||= Type.wrap LibJIT.jit_function_get_signature(jit_t)
   end
   
   def compile
@@ -14,7 +23,7 @@ class Function
     x = LibJIT.jit_insn_default_return(@jit_t)
     # If function is expected to return a value and default return instruction
     # is reached, raise an exception
-    if x == 1 and not @signature.return_type.void?
+    if x == 1 and not signature.return_type.void?
       raise JIT::Error.new("Expected 'return' instruction for non-void function")
     end
     
@@ -23,7 +32,7 @@ class Function
   
   def call(*args)
     # Turn each element of 'args' into a pointer to its value
-    @signature.param_types.each_with_index do |type, i|
+    signature.param_types.each_with_index do |type, i|
       ptr = FFI::MemoryPointer.new(type.to_ffi_type, 1)
       ptr.send("put_#{type.to_ffi_type}", 0, args[i])
       args[i] = ptr
@@ -35,16 +44,16 @@ class Function
     
     # Create a pointer used to access the function's return value
     return_ptr = nil
-    unless @signature.return_type.void?
-      return_ptr = FFI::MemoryPointer.new(@signature.return_type.to_ffi_type, 1)
+    unless signature.return_type.void?
+      return_ptr = FFI::MemoryPointer.new(signature.return_type.to_ffi_type, 1)
     end
     
     # Call the function!
     LibJIT.jit_function_apply(@jit_t, args_ptr, return_ptr)
     
     # Return with our results
-    unless @signature.return_type.void?
-      return return_ptr.send("get_#{@signature.return_type.to_ffi_type}", 0)
+    unless signature.return_type.void?
+      return return_ptr.send("get_#{signature.return_type.to_ffi_type}", 0)
     end
     
     return
@@ -55,7 +64,7 @@ class Function
   end
   
   def arg(i)
-    wrap_value LibJIT.jit_value_get_param(@jit_t, i.to_i)
+    Value.wrap LibJIT.jit_value_get_param(@jit_t, i.to_i)
   end
   
   # arguments represent a Type
@@ -87,7 +96,7 @@ class Function
     args_ptr = FFI::MemoryPointer.new(:pointer, args.length)
     args_ptr.put_array_of_pointer 0, args
     
-    wrap_value LibJIT.jit_insn_call(@jit_t, nil, func.jit_t, nil, args_ptr, args.length, 0)
+    Value.wrap LibJIT.jit_insn_call(@jit_t, nil, func.jit_t, nil, args_ptr, args.length, 0)
   end
   
   def call_native(func, signature, *args)
@@ -96,7 +105,7 @@ class Function
     args = args.map {|val| val.jit_t}
     args_ptr.put_array_of_pointer 0, args
   
-    wrap_value LibJIT.jit_insn_call_native(@jit_t, nil, func, signature.jit_t, args_ptr, args.length, 0, 0)
+    Value.wrap LibJIT.jit_insn_call_native(@jit_t, nil, func, signature.jit_t, args_ptr, args.length, 0, 0)
   end
 
   def c
@@ -145,10 +154,6 @@ class Function
   
   def break
     IterationStructure.break self
-  end
-  
-  def wrap_value jit_t
-    Value.wrap(self, jit_t)
   end
 end
 

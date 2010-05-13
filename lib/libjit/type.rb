@@ -30,7 +30,9 @@ class Type
       elsif t.pointer?
         PointerType.wrap jit_t
       elsif t.signature?
-        StructType.wrap jit_t
+        SignatureType.wrap jit_t
+      elsif LibJIT.jit_type_get_kind(jit_t) == :void
+        VoidType.wrap jit_t
       else
         PrimitiveType.wrap jit_t
       end
@@ -142,7 +144,13 @@ end
 class VoidType < Type
   def initialize
     @jit_t = LibJIT.jit_type_from_string('void')
-  end  
+  end
+  
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
+  end
   
   # True
   def void?

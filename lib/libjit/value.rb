@@ -7,15 +7,11 @@ class Value
     raise ArgumentError.new "Function is required" unless function.is_a? Function
     raise ArgumentError.new "Type is required" if args.empty?
     type = Type.create *args
-    wrap function, LibJIT.jit_value_create(function.jit_t, type.jit_t)
+    wrap LibJIT.jit_value_create(function.jit_t, type.jit_t)
   end
   
-  def self.wrap(function, jit_t)
-    #TODO: infer function from jit_t, and remove function argument
-    raise ArgumentError.new "Function can't be nil" if function.nil?
-    
+  def self.wrap(jit_t)
     v = Value.allocate
-    v.instance_variable_set(:@function, function)
     v.instance_variable_set(:@jit_t, jit_t)
     
     type = v.type
@@ -29,7 +25,6 @@ class Value
       Primitive.allocate
     end
     
-    value.instance_variable_set(:@function, function)
     value.instance_variable_set(:@jit_t, jit_t)
     # It's not strictly necessary to set @type, but we might as well
     # (caching FTW!)
@@ -38,40 +33,39 @@ class Value
     return value
   end
   
+  def function
+    @function ||= Function.wrap(LibJIT.jit_value_get_function(jit_t))
+  end
+  
   def type
     @type ||= Type.wrap LibJIT.jit_value_get_type(jit_t)
   end
   
   def store(other)
-    LibJIT.jit_insn_store(@function.jit_t, @jit_t, other.jit_t)
+    LibJIT.jit_insn_store(function.jit_t, jit_t, other.jit_t)
     self
   end
   
   # Gets address of variable (will be made addressable if not already).
   def address
-    wrap_value LibJIT.jit_insn_address_of(@function.jit_t, @jit_t)
+    Value.wrap LibJIT.jit_insn_address_of(function.jit_t, jit_t)
   end
   
   def addressable?
-    LibJIT.jit_value_is_addressable(@jit_t) != 0
+    LibJIT.jit_value_is_addressable(jit_t) != 0
   end
   
   def set_addressable
-    LibJIT.jit_value_set_addressable(@jit_t)
+    LibJIT.jit_value_set_addressable(jit_t)
   end
   
   def to_bool
-    wrap_value LibJIT.jit_insn_to_bool(@function.jit_t, @jit_t)
+    Value.wrap LibJIT.jit_insn_to_bool(function.jit_t, jit_t)
   end
 
   def cast *type
     type = Type.create *type
-    wrap_value LibJIT.jit_insn_convert(@function.jit_t, jit_t, type.jit_t, 0)
-  end
-  
-  private
-  def wrap_value val
-    Value.wrap @function, val
+    Value.wrap LibJIT.jit_insn_convert(function.jit_t, jit_t, type.jit_t, 0)
   end
 end
 
@@ -80,75 +74,79 @@ end
 
 class Primitive < Value
   def <(other)
-    wrap_value LibJIT.jit_insn_lt(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_lt(function.jit_t, jit_t, other.jit_t)
   end
   
   def <=(other)
-    wrap_value LibJIT.jit_insn_le(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_le(function.jit_t, jit_t, other.jit_t)
   end
   
   def >(other)
-    wrap_value LibJIT.jit_insn_gt(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_gt(function.jit_t, jit_t, other.jit_t)
   end
   
   def >=(other)
-    wrap_value LibJIT.jit_insn_ge(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_ge(function.jit_t, jit_t, other.jit_t)
   end
   
   def eq(other)
-    wrap_value LibJIT.jit_insn_eq(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_eq(function.jit_t, jit_t, other.jit_t)
   end
   
   def ne(other)
-    wrap_value LibJIT.jit_insn_ne(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_ne(function.jit_t, jit_t, other.jit_t)
   end
   
   def ~
-    wrap_value LibJIT.jit_insn_not(@function.jit_t, @jit_t)
+    Value.wrap LibJIT.jit_insn_not(function.jit_t, jit_t)
   end
   
   def <<(other)
-    wrap_value LibJIT.jit_insn_shl(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_shl(function.jit_t, jit_t, other.jit_t)
   end
   
   def >>(other)
-    wrap_value LibJIT.jit_insn_shr(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_shr(function.jit_t, jit_t, other.jit_t)
   end
   
   def &(other)
-    wrap_value LibJIT.jit_insn_and(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_and(function.jit_t, jit_t, other.jit_t)
   end
   
   def ^(other)
-    wrap_value LibJIT.jit_insn_xor(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_xor(function.jit_t, jit_t, other.jit_t)
   end
   
   def |(other)
-    wrap_value LibJIT.jit_insn_or(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_or(function.jit_t, jit_t, other.jit_t)
   end
   
   def -@
-    wrap_value LibJIT.jit_insn_neg(@function.jit_t, @jit_t)
+    Value.wrap LibJIT.jit_insn_neg(function.jit_t, jit_t)
   end
   
   def +(other)
-    wrap_value LibJIT.jit_insn_add(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_add(function.jit_t, jit_t, other.jit_t)
   end
   
   def -(other)
-    wrap_value LibJIT.jit_insn_sub(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_sub(function.jit_t, jit_t, other.jit_t)
   end
   
   def *(other)
-    wrap_value LibJIT.jit_insn_mul(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_mul(function.jit_t, jit_t, other.jit_t)
   end
   
   def /(other)
-    wrap_value LibJIT.jit_insn_div(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_div(function.jit_t, jit_t, other.jit_t)
   end
   
   def %(other)
-    wrap_value LibJIT.jit_insn_rem(@function.jit_t, @jit_t, other.jit_t)
+    Value.wrap LibJIT.jit_insn_rem(function.jit_t, jit_t, other.jit_t)
+  end
+  
+  def acos
+    Value.wrap LibJIT.jit_insn_acos(function.jit_t, jit_t)
   end
 end
 
@@ -163,23 +161,23 @@ class Pointer < Primitive
       ref_type_jit_t = Type.create(type).jit_t
     end
     
-    wrap_value LibJIT.jit_insn_load_relative(@function.jit_t, jit_t, 0, ref_type_jit_t)
+    Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, 0, ref_type_jit_t)
   end
 
   # Stores a value at the address referenced by this pointer. An address offset
   # may optionally be set with a Ruby integer.
   def mstore(value, offset=0)
-    LibJIT.jit_insn_store_relative(@function.jit_t, self.jit_t, offset, value.jit_t)
+    LibJIT.jit_insn_store_relative(function.jit_t, self.jit_t, offset, value.jit_t)
   end
 end
 
 class Struct < Value
   def [](index)
-    wrap_value LibJIT.jit_insn_load_relative(@function.jit_t, self.address.jit_t, @type.offset(index), @type.field_type(index).jit_t)
+    Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, self.address.jit_t, type.offset(index), type.field_type(index).jit_t)
   end
   
   def []=(index, value)
-    LibJIT.jit_insn_store_relative(@function.jit_t, self.address.jit_t, @type.offset(index), value.jit_t)
+    LibJIT.jit_insn_store_relative(function.jit_t, self.address.jit_t, type.offset(index), value.jit_t)
   end
 end
 
@@ -201,9 +199,9 @@ class Constant < Primitive
       
       LibJIT.jit_value_create_long_constant(@function.jit_t, @type.jit_t, val)
     when :float32
-      raise NotImplementedError.new("TODO: float32 constant creation")
+      LibJIT.jit_value_create_float32_constant(@function.jit_t, @type.jit_t, val)
     when :float64
-      raise NotImplementedError.new("TODO: float64 constant creation")
+      LibJIT.jit_value_create_float64_constant(@function.jit_t, @type.jit_t, val)
     else
       raise JIT::TypeError.new("'#{@sym}' is not a supported type for constant creation")
     end

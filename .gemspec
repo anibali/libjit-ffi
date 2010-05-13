@@ -4,24 +4,26 @@
 # -*- encoding: utf-8 -*-
 
 Gem::Specification.new do |s|
-  s.name = %q{libjit-ffi}
+  s.name = nil
   s.version = "0.0.0"
-  s.platform = Gem::Platform.new(["x86", "linux", nil])
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
-  s.authors = ["Aiden Nibali"]
   s.date = %q{2010-05-11}
-  s.description = %q{Ruby bindings for libjit using FFI}
-  s.email = %q{dismal.denizen@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE",
-     "README"
+     "README",
+     "TODO"
   ]
   s.files = [
     "LICENSE",
      "README",
      "Rakefile",
+     "TODO",
      "VERSION",
+     "ext/jitextra/Rakefile",
+     "ext/jitextra/jitextra.c",
+     "ext/jitextra/jitextra.o",
+     "ext/jitextra/libjitextra.so",
      "lib/libjit.rb",
      "lib/libjit/context.rb",
      "lib/libjit/control_structures.rb",
@@ -31,6 +33,7 @@ Gem::Specification.new do |s|
      "lib/libjit/type.rb",
      "lib/libjit/value.rb",
      "lib/libjitextra.so",
+     "libjit-ffi.gemspec",
      "spec/bitwise_spec.rb",
      "spec/comparison_spec.rb",
      "spec/constant_spec.rb",
@@ -48,10 +51,10 @@ Gem::Specification.new do |s|
      "spec/void_type_spec.rb",
      "spec/while_spec.rb"
   ]
-  s.rdoc_options = ["--charset=UTF-8", "--title", "libjit-ffi 0.0.0\n", "--main", "README", "--line-numbers"]
+  s.rdoc_options = ["--charset=UTF-8"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.6}
-  s.summary = %q{Ruby bindings for libjit using FFI}
+  s.summary = nil
   s.test_files = [
     "spec/value_spec.rb",
      "spec/context_spec.rb",
@@ -76,12 +79,9 @@ Gem::Specification.new do |s|
     s.specification_version = 3
 
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
-      s.add_runtime_dependency(%q<ffi>, [">= 0"])
     else
-      s.add_dependency(%q<ffi>, [">= 0"])
     end
   else
-    s.add_dependency(%q<ffi>, [">= 0"])
   end
 end
 

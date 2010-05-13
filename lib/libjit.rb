@@ -47,6 +47,7 @@ module LibJIT
   attach_function :jit_function_create, [:pointer, :pointer], :pointer
   attach_function :jit_function_compile, [:pointer], :void
   attach_function :jit_function_apply, [:pointer, :pointer, :pointer], :void
+  attach_function :jit_function_get_signature, [:pointer], :pointer
   
   attach_function :jit_insn_return, [:pointer, :pointer], :int
   attach_function :jit_insn_default_return, [:pointer], :int
@@ -99,11 +100,14 @@ module LibJIT
   attach_function :jit_value_get_param, [:pointer, :int], :pointer
   attach_function :jit_value_create, [:pointer, :pointer], :pointer
   attach_function :jit_value_get_type, [:pointer], :pointer
+  attach_function :jit_value_get_function, [:pointer], :pointer
   attach_function :jit_insn_convert, [:pointer, :pointer, :pointer, :int], :pointer
   
   # Constants
   attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int], :pointer
   attach_function :jit_value_create_long_constant, [:pointer, :pointer, :long_long], :pointer
+  attach_function :jit_value_create_float32_constant, [:pointer, :pointer, :float], :pointer
+  attach_function :jit_value_create_float64_constant, [:pointer, :pointer, :float], :pointer
   attach_function :jit_value_get_nint_constant, [:pointer], :int
   attach_function :jit_value_get_long_constant, [:pointer], :long_long
 end
