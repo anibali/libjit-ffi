@@ -25,7 +25,7 @@ end
 describe "#acos" do
   before do
     @func = @context.build_function [:float32], :float32 do |f|
-      f.return f.arg(0).acos
+      f.return f.acos(f.arg(0))
     end
   end
   

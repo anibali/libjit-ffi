@@ -6,11 +6,10 @@
 Gem::Specification.new do |s|
   s.name = %q{libjit-ffi}
   s.version = "0.0.0"
-  s.platform = Gem::Platform.new(["x86", "linux", nil])
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Aiden Nibali"]
-  s.date = %q{2010-05-11}
+  s.date = %q{2010-05-14}
   s.description = %q{Ruby bindings for libjit using FFI}
   s.email = %q{dismal.denizen@gmail.com}
   s.extra_rdoc_files = [
@@ -31,6 +30,7 @@ Gem::Specification.new do |s|
      "lib/libjit/type.rb",
      "lib/libjit/value.rb",
      "lib/libjitextra.so",
+     "spec/arithmetic_spec.rb",
      "spec/bitwise_spec.rb",
      "spec/comparison_spec.rb",
      "spec/constant_spec.rb",
@@ -67,6 +67,7 @@ Gem::Specification.new do |s|
      "spec/pointer_spec.rb",
      "spec/spec_helper.rb",
      "spec/struct_type_spec.rb",
+     "spec/arithmetic_spec.rb",
      "spec/primitive_type_spec.rb",
      "spec/comparison_spec.rb"
   ]

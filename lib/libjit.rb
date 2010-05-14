@@ -81,6 +81,10 @@ module LibJIT
   attach_function :jit_insn_acos, [:pointer, :pointer], :pointer
   attach_function :jit_insn_asin, [:pointer, :pointer], :pointer
   attach_function :jit_insn_atan, [:pointer, :pointer], :pointer
+  attach_function :jit_insn_atan2, [:pointer, :pointer, :pointer], :pointer
+  attach_function :jit_insn_ceil, [:pointer, :pointer], :pointer
+  attach_function :jit_insn_cos, [:pointer, :pointer], :pointer
+  attach_function :jit_insn_cosh, [:pointer, :pointer], :pointer
   #TODO: more...
   
   attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
@@ -110,6 +114,8 @@ module LibJIT
   attach_function :jit_value_create_float64_constant, [:pointer, :pointer, :float], :pointer
   attach_function :jit_value_get_nint_constant, [:pointer], :int
   attach_function :jit_value_get_long_constant, [:pointer], :long_long
+  attach_function :jit_value_get_float32_constant, [:pointer], :float
+  attach_function :jit_value_get_float64_constant, [:pointer], :double
 end
 
 module JIT

@@ -79,6 +79,8 @@ class PrimitiveType < Type
     :uint32 => :uint,
     :int64 => :long,
     :uint64 => :ulong,
+    :intn => :nint,
+    :uintn => :nuint,
     :float32 => :float32,
     :float64 => :float64
   }.freeze
@@ -92,6 +94,8 @@ class PrimitiveType < Type
     :uint32 => :uint32,
     :int64 => :int64,
     :uint64 => :uint64,
+    :intn => :long,
+    :uintn => :ulong,
     :float32 => :float,
     :float64 => :double
   }.freeze
@@ -121,15 +125,16 @@ class PrimitiveType < Type
   end
   
   def integer?
-    [:int8, :int16, :int32, :int64, :uint8, :uint16, :uint32, :uint64].include? to_sym
+    [:int8, :int16, :int32, :int64, :intn,
+     :uint8, :uint16, :uint32, :uint64, :uintn].include? to_sym
   end
   
   def signed?
-    [:int8, :int16, :int32, :int64, :float32, :float64].include? to_sym
+    [:int8, :int16, :int32, :int64, :intn, :float32, :float64].include? to_sym
   end
   
   def unsigned?
-    [:uint8, :uint16, :uint32, :uint64].include? to_sym
+    [:uint8, :uint16, :uint32, :uint64, :uintn].include? to_sym
   end
   
   def to_ffi_type

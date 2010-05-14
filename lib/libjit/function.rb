@@ -155,6 +155,34 @@ class Function
   def break
     IterationStructure.break self
   end
+  
+  def acos(a)
+    Value.wrap LibJIT.jit_insn_acos(jit_t, a.jit_t)
+  end
+  
+  def asin(a)
+    Value.wrap LibJIT.jit_insn_asin(jit_t, a.jit_t)
+  end
+  
+  def atan(a)
+    Value.wrap LibJIT.jit_insn_atan(jit_t, a.jit_t)
+  end
+  
+  def atan2(a, b)
+    Value.wrap LibJIT.jit_insn_atan2(jit_t, a.jit_t, b.jit_t)
+  end
+  
+  def ceil(a)
+    Value.wrap LibJIT.jit_insn_ceil(jit_t, a.jit_t)
+  end
+  
+  def cos(a)
+    Value.wrap LibJIT.jit_insn_cos(jit_t, a.jit_t)
+  end
+  
+  def cosh(a)
+    Value.wrap LibJIT.jit_insn_cosh(jit_t, a.jit_t)
+  end
 end
 
 end

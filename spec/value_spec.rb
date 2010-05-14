@@ -30,6 +30,29 @@ context "when type is :int8" do
   end
 end
 
+context "when type is :intn" do
+  before do
+    @function = JIT::Function.new [:intn], :void
+    @value = @function.arg(0)
+  end
+  
+  context "after #address is called" do
+    before do
+      @value.address
+    end
+    subject { @value }
+    
+    its(:addressable?) { should be_true }
+  end
+  
+  describe "#type" do
+    subject { @value.type }
+    
+    its(:to_sym) { should eql(:intn) }
+    it { should be_kind_of(JIT::PrimitiveType) }
+  end
+end
+
 after do
   @context.destroy # Die monster, you don't belong in this world!
 end

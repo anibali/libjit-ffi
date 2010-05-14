@@ -144,10 +144,6 @@ class Primitive < Value
   def %(other)
     Value.wrap LibJIT.jit_insn_rem(function.jit_t, jit_t, other.jit_t)
   end
-  
-  def acos
-    Value.wrap LibJIT.jit_insn_acos(function.jit_t, jit_t)
-  end
 end
 
 class Pointer < Primitive
@@ -207,8 +203,8 @@ class Constant < Primitive
     end
   end
   
-  def to_i
-    @to_i ||= case type.to_sym
+  def to_numeric
+    @numeric ||= case type.to_sym
     when :uint8, :int8, :uint16, :int16, :uint32, :int32
       val = LibJIT.jit_value_get_nint_constant jit_t
       # Turn unsigned integer into a signed one if appropriate
@@ -217,8 +213,12 @@ class Constant < Primitive
       val = LibJIT.jit_value_get_long_constant jit_t
       # Turn unsigned integer into a signed one if appropriate
       [val].pack('q').unpack('Q').first if type.unsigned?
+    when :float32
+      LibJIT.jit_value_get_float32_constant jit_t
+    when :float64
+      LibJIT.jit_value_get_float64_constant jit_t
     else
-      raise JIT::TypeError.new("Constant is not an integer")
+      raise JIT::TypeError.new("Constant is not of a supported numeric type")
     end
   end
 end
