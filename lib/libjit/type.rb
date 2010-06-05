@@ -71,31 +71,31 @@ end
 # without target types
 class PrimitiveType < Type
   JIT_SYM_MAP = {
-    :int8 => :sbyte,
-    :uint8 => :ubyte,
-    :int16 => :short,
-    :uint16 => :ushort,
-    :int32 => :int,
-    :uint32 => :uint,
-    :int64 => :long,
-    :uint64 => :ulong,
-    :intn => :nint,
-    :uintn => :nuint,
+    :int8    => :sbyte,
+    :uint8   => :ubyte,
+    :int16   => :short,
+    :uint16  => :ushort,
+    :int32   => :int,
+    :uint32  => :uint,
+    :int64   => :long,
+    :uint64  => :ulong,
+    :intn    => :nint,
+    :uintn   => :nuint,
     :float32 => :float32,
     :float64 => :float64
   }.freeze
   
   FFI_SYM_MAP = {
-    :int8 => :int8,
-    :uint8 => :uint8,
-    :int16 => :int16,
-    :uint16 => :uint16,
-    :int32 => :int32,
-    :uint32 => :uint32,
-    :int64 => :int64,
-    :uint64 => :uint64,
-    :intn => :long,
-    :uintn => :ulong,
+    :int8    => :int8,
+    :uint8   => :uint8,
+    :int16   => :int16,
+    :uint16  => :uint16,
+    :int32   => :int32,
+    :uint32  => :uint32,
+    :int64   => :int64,
+    :uint64  => :uint64,
+    :intn    => :long,
+    :uintn   => :ulong,
     :float32 => :float,
     :float64 => :double
   }.freeze
@@ -286,11 +286,48 @@ class StructType < Type
   end
   
   def offset index
-    LibJIT.jit_type_get_offset(@jit_t, index)
+    LibJIT.jit_type_get_offset(jit_t, index)
   end
   
   def field_type index
-    Type.wrap LibJIT.jit_type_get_field(@jit_t, index)
+    Type.wrap LibJIT.jit_type_get_field(jit_t, index)
+  end
+  
+  def find_field name
+    LibJIT.jit_type_find_name jit_t, name
+  end
+  
+  def field_names=(names)
+    array_ptr = FFI::MemoryPointer.new :pointer, names.size
+    names = names.map do |name|
+      name += "\0"
+      string_ptr = FFI::MemoryPointer.new :char, name.size
+      string_ptr.put_array_of_char 0, name.unpack('C*')
+      string_ptr.address
+    end
+    array_ptr.put_array_of_pointer 0, names
+    
+    LibJIT.jit_type_set_names jit_t, array_ptr, names.size
+  end
+  
+  def name=(name)
+    @jit_t = LibJIT.jit_type_create_tagged(jit_t, :struct_name, name, nil, 1)
+    @name = name
+  end
+  
+  def name
+    if @name.nil?
+      t = jit_t
+      
+      until(LibJIT.jit_type_get_tagged_kind(t) == :struct_name)
+        t = LibJIT.jit_type_get_tagged_type(t)
+        return nil if t.null?
+      end
+      
+      @name = LibJIT.jit_type_get_tagged_data(t)
+    else
+      @name
+    end
   end
   
   def struct?

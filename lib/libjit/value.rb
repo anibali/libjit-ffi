@@ -144,6 +144,10 @@ class Primitive < Value
   def %(other)
     Value.wrap LibJIT.jit_insn_rem(function.jit_t, jit_t, other.jit_t)
   end
+  
+  def **(other)
+    Value.wrap LibJIT.jit_insn_pow(function.jit_t, jit_t, other.jit_t)
+  end
 end
 
 class Pointer < Primitive

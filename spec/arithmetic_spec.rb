@@ -6,6 +6,22 @@ before do
   @context = JIT::Context.new
 end
 
+context "when type is 'int32'" do
+  describe "#**" do
+    before do
+      @func = @context.build_function [:int32, :int32], :int32 do |f|
+        f.return f.arg(0) ** f.arg(1)
+      end
+    end
+    
+    [2, 8, 9, 3, 20, 0, -5, 3].each_slice(2) do |a, b|
+      context "when evaluating #{a} ** #{b}" do
+        it { @func[a, b].should eql(a ** b) }
+      end
+    end
+  end
+end
+
 context "when type is 'float32'" do
 
 describe "#+" do

@@ -11,8 +11,10 @@ require 'libjit/label'
 
 module LibJIT
   extend FFI::Library
-
-  LIB_PATH = Pathname.new(__FILE__).expand_path.dirname.join("libjitextra.so").to_s
+  
+  unless defined? LIB_PATH
+    LIB_PATH = Pathname.new(__FILE__).expand_path.dirname.join("libjitextra.so").to_s
+  end
   
   ffi_lib LIB_PATH
   
@@ -20,6 +22,8 @@ module LibJIT
   enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
     :int32, :uint32, :intn, :uintn, :int64, :uint64, :float32, :float64,
     :floatn, :struct, :union, :signature, :pointer]
+  enum :jit_typetag_t, [:name, 10000, :struct_name, :union_name, :enum_name,
+    :const, :volatile, :reference, :output, :restrict]
   
   attach_function :jit_context_create, [], :pointer
   attach_function :jit_context_destroy, [:pointer], :void
@@ -28,7 +32,15 @@ module LibJIT
   
   attach_function :jit_type_create_struct, [:pointer, :uint, :int], :pointer
   attach_function :jit_type_get_field, [:pointer, :uint], :pointer
+  attach_function :jit_type_set_names, [:pointer, :pointer, :uint], :int
+  attach_function :jit_type_find_name, [:pointer, :string], :uint
   attach_function :jit_type_get_offset, [:pointer, :uint], :ulong
+  
+  attach_function :jit_type_create_tagged, [:pointer, :jit_typetag_t, :string, :pointer, :int], :pointer
+  attach_function :jit_type_get_tagged_data, [:pointer], :string
+  attach_function :jit_type_get_tagged_kind, [:pointer], :jit_typetag_t
+  attach_function :jit_type_get_tagged_type, [:pointer], :pointer
+  
   attach_function :jit_type_create_signature, [:jit_abi_t, :pointer, :pointer, :uint, :int], :pointer
   attach_function :jit_type_get_abi, [:pointer], :jit_abi_t
   attach_function :jit_type_num_params, [:pointer], :uint
@@ -85,6 +97,7 @@ module LibJIT
   attach_function :jit_insn_ceil, [:pointer, :pointer], :pointer
   attach_function :jit_insn_cos, [:pointer, :pointer], :pointer
   attach_function :jit_insn_cosh, [:pointer, :pointer], :pointer
+  attach_function :jit_insn_pow, [:pointer, :pointer, :pointer], :pointer
   #TODO: more...
   
   attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void

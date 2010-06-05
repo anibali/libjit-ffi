@@ -52,6 +52,8 @@ namespace :compile do
   end
 end
 
+task :build => ['compile']
+
 desc "Run all RSpec examples."
 Spec::Rake::SpecTask.new('spec') do |t|
   t.spec_files = FileList['spec/**/*.rb']
