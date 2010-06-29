@@ -87,11 +87,6 @@ class Function
   def call_other(func, *args)
     # Turn each element of 'args' into a pointer to its value
     args = args.map {|val| val.jit_t}
-    func.signature.param_types.each_with_index do |type, i|
-      ptr = FFI::MemoryPointer.new(type.to_ffi_type, 1)
-      ptr.send("put_#{type.to_ffi_type}", 0, args[i])
-      args[i] = ptr
-    end
     # Make a C array representation of 'args'
     args_ptr = FFI::MemoryPointer.new(:pointer, args.length)
     args_ptr.put_array_of_pointer 0, args
