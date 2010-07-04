@@ -262,21 +262,27 @@ class Primitive < Value
 end
 
 class Pointer < Primitive
-  # Retrieves the value being pointed to. If an explicit type is not specified
+  # Retrieve the value being pointed to. If an explicit type is not specified
   # it will be inferred.
-  def dereference(type=nil)
+  #
+  # @param *type the type to dereference as.
+  # @return [Value] the retrieved value.
+  def dereference(*type)
     ref_type_jit_t = nil
-    if type.nil?
+    if type.empty?
       ref_type_jit_t = LibJIT.jit_type_get_ref(self.type.jit_t)
     else
-      ref_type_jit_t = Type.create(type).jit_t
+      ref_type_jit_t = Type.create(*type).jit_t
     end
     
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, 0, ref_type_jit_t)
   end
 
-  # Stores a value at the address referenced by this pointer. An address offset
+  # Store a value at the address referenced by this pointer. An address offset
   # may optionally be set with a Ruby integer.
+  #
+  # @param [Value] value the value to store.
+  # @param [Fixnum] offset an offset to the address.
   def mstore(value, offset=0)
     LibJIT.jit_insn_store_relative(function.jit_t, self.jit_t, offset, value.jit_t)
   end
