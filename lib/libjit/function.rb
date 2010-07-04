@@ -20,14 +20,14 @@ class Function
   
   def compile
     # Add a default return instruction
-    x = LibJIT.jit_insn_default_return(@jit_t)
+    x = LibJIT.jit_insn_default_return(jit_t)
     # If function is expected to return a value and default return instruction
     # is reached, raise an exception
     if x == 1 and not signature.return_type.void?
       raise JIT::Error.new("Expected 'return' instruction for non-void function")
     end
     
-    LibJIT.jit_function_compile(@jit_t)
+    LibJIT.jit_function_compile jit_t
   end
   
   def call(*args)
@@ -49,7 +49,7 @@ class Function
     end
     
     # Call the function!
-    LibJIT.jit_function_apply(@jit_t, args_ptr, return_ptr)
+    LibJIT.jit_function_apply(jit_t, args_ptr, return_ptr)
     
     # Return with our results
     unless signature.return_type.void?
@@ -64,7 +64,7 @@ class Function
   end
   
   def arg(i)
-    Value.wrap LibJIT.jit_value_get_param(@jit_t, i.to_i)
+    Value.wrap LibJIT.jit_value_get_param(jit_t, i.to_i)
   end
   
   # arguments represent a Type
@@ -73,7 +73,7 @@ class Function
   end
   
   def return(value=nil)
-    LibJIT.jit_insn_return(@jit_t, value ? value.jit_t : nil)
+    LibJIT.jit_insn_return(jit_t, value ? value.jit_t : nil)
   end
   
   def const(val, *type)
@@ -101,7 +101,7 @@ class Function
     args_ptr = FFI::MemoryPointer.new(:pointer, args.length)
     args_ptr.put_array_of_pointer 0, args
     
-    Value.wrap LibJIT.jit_insn_call(@jit_t, nil, func.jit_t, nil, args_ptr, args.length, 0)
+    Value.wrap LibJIT.jit_insn_call(jit_t, nil, func.jit_t, nil, args_ptr, args.length, 0)
   end
   
   def call_native(func, signature, *args)
@@ -110,7 +110,7 @@ class Function
     args = args.map {|val| val.jit_t}
     args_ptr.put_array_of_pointer 0, args
   
-    Value.wrap LibJIT.jit_insn_call_native(@jit_t, nil, func, signature.jit_t, args_ptr, args.length, 0, 0)
+    Value.wrap LibJIT.jit_insn_call_native(jit_t, nil, func, signature.jit_t, args_ptr, args.length, 0, 0)
   end
 
   def c
@@ -130,15 +130,15 @@ class Function
   end
   
   def jmp label
-    LibJIT.jit_insn_branch(@jit_t, label.jit_t)
+    LibJIT.jit_insn_branch(jit_t, label.jit_t)
   end
   
   def jmp_if cond, label
-    LibJIT.jit_insn_branch_if(@jit_t, cond.jit_t, label.jit_t)
+    LibJIT.jit_insn_branch_if(jit_t, cond.jit_t, label.jit_t)
   end
   
   def jmp_if_not cond, label
-    LibJIT.jit_insn_branch_if_not(@jit_t, cond.jit_t, label.jit_t)
+    LibJIT.jit_insn_branch_if_not(jit_t, cond.jit_t, label.jit_t)
   end
   
   def if &condition

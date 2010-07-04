@@ -1,6 +1,12 @@
 libjit-ffi
 ==========
 
+Warning
+-------
+
+These bindings are still being developed, so the API is by no means stable.
+Suggestions for improvements are always welcome!
+
 Synopsis
 --------
 
@@ -14,6 +20,8 @@ the portability of the bindings.
 Example
 -------
 
+    require 'libjit'
+    
     double = JIT::Context.default.build_function [:int32], :int32 do |f|
       n = f.arg(0)
       two = f.const(2, :int8)
