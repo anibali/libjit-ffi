@@ -307,6 +307,11 @@ class Struct < Value
 end
 
 class Constant < Primitive
+  # Create a new constant.
+  #
+  # @param [Function] function the function to which the constant will belong.
+  # @param [Number] val the number to be represented by the constant.
+  # @param *type the type of the constant.
   def initialize(function, val, *type)
     raise ArgumentError.new "Function can't be nil" if function.nil?
     @function = function
@@ -330,6 +335,9 @@ class Constant < Primitive
     end
   end
   
+  # Get the number represented by this constant as a Ruby object.
+  #
+  # @return [Number] the number represented by this constant.
   def to_numeric
     @numeric ||= case type.to_sym
     when :uint8, :int8, :uint16, :int16, :uint32, :int32, :uintn, :intn
