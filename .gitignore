@@ -3,3 +3,5 @@ doc
 .yardoc
 pkg
 *~
+*.o
+*.so

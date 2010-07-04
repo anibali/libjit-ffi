@@ -203,7 +203,7 @@ class Constant < Primitive
     when :float64
       LibJIT.jit_value_create_float64_constant(@function.jit_t, @type.jit_t, val)
     else
-      raise JIT::TypeError.new("'#{@sym}' is not a supported type for constant creation")
+      raise JIT::TypeError.new("'#{type}' is not a supported type for constant creation")
     end
   end
   
