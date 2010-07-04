@@ -5,7 +5,7 @@ Warning
 -------
 
 These bindings are still being developed, so the API is by no means stable.
-Suggestions for improvements are always welcome!
+Suggestions for improvements are always welcome, so please send me some!
 
 Synopsis
 --------
