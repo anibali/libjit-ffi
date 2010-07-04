@@ -73,50 +73,100 @@ class Void < Value
 end
 
 class Primitive < Value
+  # Generate an instruction to check whether this value is less than another value.
+  #
+  # @param [Value] other the other value to compare with.
+  # @return [Value] a temporary value representing the boolean result of the comparison.
   def <(other)
     Value.wrap LibJIT.jit_insn_lt(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to check whether this value is less than or equal to another value.
+  #
+  # @param [Value] other the other value to compare with.
+  # @return [Value] a temporary value representing the boolean result of the comparison.
   def <=(other)
     Value.wrap LibJIT.jit_insn_le(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to check whether this value is greater than another value.
+  #
+  # @param [Value] other the other value to compare with.
+  # @return [Value] a temporary value representing the boolean result of the comparison.
   def >(other)
     Value.wrap LibJIT.jit_insn_gt(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to check whether this value is greater than or equal to another value.
+  #
+  # @param [Value] other the other value to compare with.
+  # @return [Value] a temporary value representing the boolean result of the comparison.
   def >=(other)
     Value.wrap LibJIT.jit_insn_ge(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to check whether this value is equal to another value.
+  #
+  # @param [Value] other the other value to compare with.
+  # @return [Value] a temporary value representing the boolean result of the comparison.
   def eq(other)
     Value.wrap LibJIT.jit_insn_eq(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to check whether this value is not equal to another value.
+  #
+  # @param [Value] other the other value to compare with.
+  # @return [Value] a temporary value representing the boolean result of the comparison.
   def ne(other)
     Value.wrap LibJIT.jit_insn_ne(function.jit_t, jit_t, other.jit_t)
   end
   
-  def ~
+  # Generate an instruction to calculate the bitwise negation of this value.
+  #
+  # @return [Value] a temporary value representing the result of negation.
+  def ~()
     Value.wrap LibJIT.jit_insn_not(function.jit_t, jit_t)
   end
   
+  # Generate an instruction to perform an arithmetic left shift on this value.
+  #
+  # @param [Value] other the number of positions to shift.
+  # @return [Value] a temporary value representing the result of shifting.
   def <<(other)
     Value.wrap LibJIT.jit_insn_shl(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to perform an arithmetic right shift on this value.
+  #
+  # @param [Value] other the number of positions to shift.
+  # @return [Value] a temporary value representing the result of shifting.
   def >>(other)
     Value.wrap LibJIT.jit_insn_shr(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to perform a
+  # [bitwise AND](http://en.wikipedia.org/wiki/Bitwise_operation#AND) with this value.
+  #
+  # @param [Value] other the other operand.
+  # @return [Value] a temporary value representing the calculated result.
   def &(other)
     Value.wrap LibJIT.jit_insn_and(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to perform a
+  # [bitwise XOR](http://en.wikipedia.org/wiki/Bitwise_operation#XOR) with this value.
+  #
+  # @param [Value] other the other operand.
+  # @return [Value] a temporary value representing the calculated result.
   def ^(other)
     Value.wrap LibJIT.jit_insn_xor(function.jit_t, jit_t, other.jit_t)
   end
   
+  # Generate an instruction to perform a
+  # [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) with this value.
+  #
+  # @param [Value] other the other operand.
+  # @return [Value] a temporary value representing the calculated result.
   def |(other)
     Value.wrap LibJIT.jit_insn_or(function.jit_t, jit_t, other.jit_t)
   end
