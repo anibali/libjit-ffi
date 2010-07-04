@@ -83,7 +83,7 @@ class Function
   # Create null-terminated string in stack memory.
   def stringz(ruby_string)
     ruby_string += "\0"
-    ptr = Value.wrap LibJIT.jit_insn_alloca(jit_t, const(ruby_string.size, :uint32).jit_t)
+    ptr = Value.wrap LibJIT.jit_insn_alloca(jit_t, const(ruby_string.size, :uintn).jit_t)
     ruby_string.unpack('C*').each_with_index do |c, i|
       ptr.mstore(const(c, :uint8), i)
     end

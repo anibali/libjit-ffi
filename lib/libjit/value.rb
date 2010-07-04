@@ -188,22 +188,26 @@ class Constant < Primitive
     @type = Type.create *type
     
     @jit_t = case @type.to_sym
-    when :uint8, :int8, :uint16, :int16, :uint32, :int32
+    when :uint8, :int8, :uint16, :int16, :int32, :intn
+      LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
+    when :uint32
       # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
-      val = [val].pack('I').unpack('i').first if @type.unsigned?
-
+      val = [val].pack('L').unpack('l').first if Type.create(:intn).size == 4
+      LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
+    when :uintn
+      # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
+      val = [val].pack('I').unpack('i').first
       LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
     when :uint64, :int64
       # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
       val = [val].pack('Q').unpack('q').first if @type.unsigned?
-      
       LibJIT.jit_value_create_long_constant(@function.jit_t, @type.jit_t, val)
     when :float32
       LibJIT.jit_value_create_float32_constant(@function.jit_t, @type.jit_t, val)
     when :float64
       LibJIT.jit_value_create_float64_constant(@function.jit_t, @type.jit_t, val)
     else
-      raise JIT::TypeError.new("'#{type}' is not a supported type for constant creation")
+      raise JIT::TypeError.new("'#{@sym}' is not a supported type for constant creation")
     end
   end
   
