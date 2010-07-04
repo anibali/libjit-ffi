@@ -188,15 +188,9 @@ class Constant < Primitive
     @type = Type.create *type
     
     @jit_t = case @type.to_sym
-    when :uint8, :int8, :uint16, :int16, :int32, :intn
-      LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
-    when :uint32
+    when :uint8, :int8, :uint16, :int16, :uint32, :int32, :uintn, :intn
       # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
-      val = [val].pack('L').unpack('l').first if Type.create(:intn).size == 4
-      LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
-    when :uintn
-      # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
-      val = [val].pack('I').unpack('i').first
+      val = [val].pack('I').unpack('i').first if @type.unsigned?
       LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
     when :uint64, :int64
       # Pass big unsigned integers as signed ones so FFI doesn't spit the dummy
@@ -213,7 +207,7 @@ class Constant < Primitive
   
   def to_numeric
     @numeric ||= case type.to_sym
-    when :uint8, :int8, :uint16, :int16, :uint32, :int32
+    when :uint8, :int8, :uint16, :int16, :uint32, :int32, :uintn, :intn
       val = LibJIT.jit_value_get_nint_constant jit_t
       # Turn unsigned integer into a signed one if appropriate
       [val].pack('i').unpack('I').first if type.unsigned?
