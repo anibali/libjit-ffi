@@ -21,13 +21,13 @@ Jeweler::Tasks.new do |s|
   
   s.add_dependency('ffi')
   
-  s.files = %w(LICENSE README Rakefile VERSION) + Dir.glob("{lib,spec}/**/*")
+  s.files = %w(LICENSE README.md Rakefile VERSION) + Dir.glob("{lib,spec}/**/*")
   s.require_path = "lib"
   
   s.has_rdoc = true
-  s.extra_rdoc_files = ['README', 'LICENSE']
+  s.extra_rdoc_files = ['README.md', 'LICENSE']
   s.rdoc_options << '--title' << "#{s.name} #{File.read 'VERSION'}" <<
-                    '--main' << 'README' << '--line-numbers'
+                    '--main' << 'README.md' << '--line-numbers'
 end
 
 Jeweler::GemcutterTasks.new
@@ -64,7 +64,7 @@ end
 YARD::Rake::YardocTask.new do |t|
   t.options = [
     '--title', "libjit-ffi #{File.read 'VERSION'}",
-    '--readme', 'README',
+    '--readme', 'README.md',
     '-m', 'markdown',
     '--files', 'LICENSE'
   ]
