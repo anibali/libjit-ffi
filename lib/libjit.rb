@@ -104,6 +104,8 @@ module LibJIT
   attach_function :jit_insn_load_relative, [:pointer, :pointer, :long, :pointer], :pointer
   attach_function :jit_insn_store_relative, [:pointer, :pointer, :long, :pointer], :int
   
+  attach_function :jit_insn_alloca, [:pointer, :pointer], :pointer
+  
   attach_function :jit_insn_address_of, [:pointer, :pointer], :pointer
   attach_function :jit_value_set_addressable, [:pointer], :void
   attach_function :jit_value_is_addressable, [:pointer], :int

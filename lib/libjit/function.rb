@@ -80,6 +80,16 @@ class Function
     Constant.new self, val, *type
   end
   
+  # Create null-terminated string in stack memory.
+  def stringz(ruby_string)
+    ruby_string += "\0"
+    ptr = Value.wrap LibJIT.jit_insn_alloca(jit_t, const(ruby_string.size, :uint32).jit_t)
+    ruby_string.unpack('C*').each_with_index do |c, i|
+      ptr.mstore(const(c, :uint8), i)
+    end
+    ptr
+  end
+  
   def label
     Label.new(self)
   end

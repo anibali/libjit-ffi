@@ -81,22 +81,17 @@ describe "malloc" do
 end
 
 describe "puts" do
-  ruby_string = "Aphex Twin\0"
+  ruby_string = "Aphex Twin"
   
   let(:func) do
     context.build_function [], :int32 do |f|
-      # Allocate memory for string
-      ptr = f.c.malloc f.const(ruby_string.size, :int8)
-      # Write characters into memory
-      ruby_string.unpack('C*').each_with_index do |c, i|
-        ptr.mstore(f.const(c, :uint8), i)
-      end
+      str = f.stringz(ruby_string)
       # Call puts and return result
-      f.return(f.c.puts ptr)
+      f.return(f.c.puts str)
     end
   end
 
-  it "should print the string '#{ruby_string.chop}' successfully" do
+  it "should print the string '#{ruby_string}' successfully" do
     func.call.should_not eql(0)
   end
 end
