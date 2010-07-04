@@ -262,8 +262,8 @@ class Primitive < Value
 end
 
 class Pointer < Primitive
-  # Retrieve the value being pointed to. If an explicit type is not specified
-  # it will be inferred.
+  # Generate an instruction to retrieve the value being pointed to. If an
+  # explicit type is not specified it will be inferred.
   #
   # @param *type the type to dereference as.
   # @return [Value] the retrieved value.
@@ -278,8 +278,8 @@ class Pointer < Primitive
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, 0, ref_type_jit_t)
   end
 
-  # Store a value at the address referenced by this pointer. An address offset
-  # may optionally be set with a Ruby integer.
+  # Generate an instruction to store a value at the address referenced by this
+  # pointer. An address offset may optionally be set with a Ruby integer.
   #
   # @param [Value] value the value to store.
   # @param [Fixnum] offset an offset to the address.
@@ -289,10 +289,18 @@ class Pointer < Primitive
 end
 
 class Struct < Value
+  # Generate an instruction to load the value of a field.
+  #
+  # @param [Fixnum] index the field's index.
+  # @return [Value] the field's value.
   def [](index)
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, self.address.jit_t, type.offset(index), type.field_type(index).jit_t)
   end
   
+  # Generate an instruction to store a value in a field.
+  #
+  # @param [Fixnum] index the field's index.
+  # @param [Value] value the value to store.
   def []=(index, value)
     LibJIT.jit_insn_store_relative(function.jit_t, self.address.jit_t, type.offset(index), value.jit_t)
   end
