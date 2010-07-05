@@ -22,14 +22,13 @@ Example
 
     require 'libjit'
     
-    double = JIT::Context.default.build_function [:int32], :int32 do |f|
-      n = f.arg(0)
-      two = f.const(2, :int8)
-      
-      f.return(n * two)
+    multiply = JIT::Context.default.build_function [:int32, :int32], :int32 do |f|
+      lhs = f.arg(0)
+      rhs = f.arg(1)
+      f.return(lhs * rhs)
     end
     
-    double[21] #=> 42
+    puts multiply[6, 7] #=> 42
 
 Features
 --------
