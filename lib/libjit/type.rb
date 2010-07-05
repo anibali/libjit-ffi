@@ -1,41 +1,57 @@
 module JIT
 
 class Type
+  # Get the FFI pointer representing this value's underlying jit_type_t
+  # (mainly for internal use).
   attr_reader :jit_t
   
-  class << self
-    def create *args
-      return args.first if args.first.is_a? Type
-      
-      case args.first.to_sym
-      when :pointer
-        PointerType.new(*args[1..-1])
-      when :signature
-        SignatureType.new(*args[1..-1])
-      when :struct, :structure
-        StructType.new(*args[1..-1])
-      when :void
-        VoidType.new(*args[1..-1])
-      else
-        PrimitiveType.new(*args)
-      end
-    end
+  # Create a type.
+  #
+  # Here are a few examples:
+  # <ul>
+  # <li>32-bit signed integer: `Type.create(:int32)`</li>
+  # <li>Pointer to 8-bit unsigned integer: `Type.create(:pointer, :uint8)`</li>
+  # <li>Struct with two 32-bit signed integer fields:
+  #   `Type.create(:struct, :int32, :int32)`</li>
+  # </ul>
+  #
+  # @param *args the arguments which define the type.
+  # @return [Type] the new type object.
+  def self.create *args
+    return args.first if args.first.is_a? Type
     
-    def wrap jit_t
-      t = Type.allocate
-      t.instance_variable_set(:@jit_t, jit_t)
-      
-      if t.struct?
-        StructType.wrap jit_t
-      elsif t.pointer?
-        PointerType.wrap jit_t
-      elsif t.signature?
-        SignatureType.wrap jit_t
-      elsif LibJIT.jit_type_get_kind(jit_t) == :void
-        VoidType.wrap jit_t
-      else
-        PrimitiveType.wrap jit_t
-      end
+    case args.first.to_sym
+    when :pointer
+      PointerType.new(*args[1..-1])
+    when :signature
+      SignatureType.new(*args[1..-1])
+    when :struct, :structure
+      StructType.new(*args[1..-1])
+    when :void
+      VoidType.new(*args[1..-1])
+    else
+      PrimitiveType.new(*args)
+    end
+  end
+  
+  # Create a type by wrapping an FFI pointer representing a jit_type_t
+  # (mainly for internal use).
+  #
+  # @return [Type] the new type object.
+  def self.wrap jit_t
+    t = Type.allocate
+    t.instance_variable_set(:@jit_t, jit_t)
+    
+    if t.struct?
+      StructType.wrap jit_t
+    elsif t.pointer?
+      PointerType.wrap jit_t
+    elsif t.signature?
+      SignatureType.wrap jit_t
+    elsif LibJIT.jit_type_get_kind(jit_t) == :void
+      VoidType.wrap jit_t
+    else
+      PrimitiveType.wrap jit_t
     end
   end
   

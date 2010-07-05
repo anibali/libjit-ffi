@@ -8,7 +8,7 @@ class Value
   # Create a value which may be have data stored in it later.
   #
   # @param function the function to which the value will belong.
-  # @param *type the value's intended type.
+  # @param [Type] *type the value's intended type.
   # @return [Value] the new value object.
   def self.create(function, *type)
     raise ArgumentError.new "Function is required" unless function.is_a? Function
@@ -95,7 +95,7 @@ class Value
   
   # Generate an instruction to cast this value into a new type.
   #
-  # @param *type the type to cast to.
+  # @param [Type] *type the type to cast to.
   # @return [Value] a temporary value representing the cast result.
   def cast *type
     type = Type.create *type
@@ -265,7 +265,7 @@ class Pointer < Primitive
   # Generate an instruction to retrieve the value being pointed to. If an
   # explicit type is not specified it will be inferred.
   #
-  # @param *type the type to dereference as.
+  # @param [Type] *type the type to dereference as.
   # @return [Value] the retrieved value.
   def dereference(*type)
     ref_type_jit_t = nil
@@ -311,7 +311,7 @@ class Constant < Primitive
   #
   # @param [Function] function the function to which the constant will belong.
   # @param [Number] val the number to be represented by the constant.
-  # @param *type the type of the constant.
+  # @param [Type] *type the type of the constant.
   def initialize(function, val, *type)
     raise ArgumentError.new "Function can't be nil" if function.nil?
     @function = function
