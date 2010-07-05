@@ -74,11 +74,11 @@ class Value
     Value.wrap LibJIT.jit_insn_address_of(function.jit_t, jit_t)
   end
   
-  # Find whether this value is currently addressable.
+  # Check whether this value is currently addressable.
   #
   # @return [Boolean] true if addressable, false otherwise.
   def addressable?
-    LibJIT.jit_value_is_addressable(jit_t) != 0
+    LibJIT.jit_value_is_addressable(jit_t)
   end
   
   # Make this value addressable.

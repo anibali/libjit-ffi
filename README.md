@@ -45,5 +45,5 @@ Limitations
 TODO
 ----
 
-* Boolean NOT (!), AND (&&), XOR (^^), OR (||).
+* Boolean NOT (!), AND (&&), XOR (&#94;&#94;), OR (||).
 

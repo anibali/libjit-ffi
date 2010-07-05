@@ -108,7 +108,7 @@ module LibJIT
   
   attach_function :jit_insn_address_of, [:pointer, :pointer], :pointer
   attach_function :jit_value_set_addressable, [:pointer], :void
-  attach_function :jit_value_is_addressable, [:pointer], :int
+  attach_function :jit_value_is_addressable, [:pointer], :bool
   
   attach_function :jit_undef_label, [], :int
   attach_function :jit_insn_label, [:pointer, :pointer], :void
