@@ -31,3 +31,19 @@ Example
     
     double[21] #=> 42
 
+Features
+--------
+
+* 100% Rubyful wrappers - no thin bindings that feel like you're working with
+  the C library directly!
+
+Limitations
+-----------
+
+* Not thread-safe.
+
+TODO
+----
+
+* Boolean NOT (!), AND (&&), XOR (^^), OR (||).
+
