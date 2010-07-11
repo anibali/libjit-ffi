@@ -39,7 +39,7 @@ Features
 Limitations
 -----------
 
-* Not thread-safe.
+* Function building is not thread-safe.
 
 TODO
 ----

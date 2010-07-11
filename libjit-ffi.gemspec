@@ -9,16 +9,16 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Aiden Nibali"]
-  s.date = %q{2010-06-29}
+  s.date = %q{2010-07-11}
   s.description = %q{Ruby bindings for libjit using FFI}
   s.email = %q{dismal.denizen@gmail.com}
   s.extra_rdoc_files = [
     "LICENSE",
-     "README"
+     "README.md"
   ]
   s.files = [
     "LICENSE",
-     "README",
+     "README.md",
      "Rakefile",
      "VERSION",
      "lib/libjit.rb",
@@ -29,7 +29,6 @@ Gem::Specification.new do |s|
      "lib/libjit/label.rb",
      "lib/libjit/type.rb",
      "lib/libjit/value.rb",
-     "lib/libjitextra.so",
      "spec/arithmetic_spec.rb",
      "spec/bitwise_spec.rb",
      "spec/call_other_spec.rb",
@@ -49,7 +48,7 @@ Gem::Specification.new do |s|
      "spec/void_type_spec.rb",
      "spec/while_spec.rb"
   ]
-  s.rdoc_options = ["--charset=UTF-8", "--title", "libjit-ffi 0.0.0\n", "--main", "README", "--line-numbers"]
+  s.rdoc_options = ["--charset=UTF-8", "--title", "libjit-ffi 0.0.0\n", "--main", "README.md", "--line-numbers"]
   s.require_paths = ["lib"]
   s.rubygems_version = %q{1.3.6}
   s.summary = %q{Ruby bindings for libjit using FFI}

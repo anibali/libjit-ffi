@@ -311,8 +311,8 @@ end
 
 class SignatureType < Type
   def initialize(param_types, return_type, abi=:cdecl)
-    @param_types = param_types.map {|t| Type.create t}
-    @return_type = Type.create(return_type)
+    @param_types = param_types.map {|t| Type.create(*t)}
+    @return_type = Type.create(*return_type)
     
     n_params = @param_types.length
     

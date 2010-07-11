@@ -57,7 +57,7 @@ task :build => ['compile']
 desc "Run all RSpec examples."
 Spec::Rake::SpecTask.new('spec') do |t|
   t.spec_files = FileList['spec/**/*.rb']
-  t.spec_opts << '--colour --format nested'
+  t.spec_opts << '--colour --format progress'
   t.ruby_opts << '-rrubygems'
 end
 
