@@ -103,7 +103,7 @@ class Type
   
   # Get the number of bytes that values of this type require for storage.
   #
-  # @return [Fixnum] the size
+  # @return [Integer] the size
   def size
     LibJIT.jit_type_get_size(@jit_t)
   end
@@ -388,7 +388,7 @@ class StructType < Type
   
   # Get a field's memory offset from its index.
   #
-  # @return [Fixnum] the field's offset.
+  # @return [Integer] the field's offset.
   def offset index
     LibJIT.jit_type_get_offset(jit_t, index)
   end
@@ -402,7 +402,7 @@ class StructType < Type
   
   # Get a field's index from its name.
   #
-  # @return [Fixnum] the field's index.
+  # @return [Integer] the field's index.
   def find_field name
     LibJIT.jit_type_find_name jit_t, name
   end
