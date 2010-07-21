@@ -1,4 +1,4 @@
-require 'libjit'
+require 'spec_helper'
 
 describe JIT::Function do
 

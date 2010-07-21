@@ -1,64 +1,54 @@
-require 'libjit'
+require 'spec_helper'
 
 describe JIT::PointerType do
-
-context "new(:uint8)" do
-  let(:type) { JIT::PointerType.new(:uint8) }
-  subject { type }
-  
-  its(:pointer?) { should be_true }
-  
-  context "ref_type" do
-    subject { type.ref_type }
-    it { should_not be_nil }
-    its(:pointer?) { should be_false }
-    its(:unsigned?) { should be_true }
-    its(:to_sym) { should eql(:uint8) }
-    its(:size) { should eql(1) }
-  end
-end
-
-describe '#ref_type' do
-  subject { @type.ref_type.to_sym }
-  
-  %w[int8 int16 int32 int64 float32 float64 uint8 uint16 uint32 uint64 pointer
-     void].each do |t|
-    context "when ref type is '#{t}'" do
-      before { @type = JIT::PointerType.new(t) }
+  %w[uint8 int8 uint16 int16 uint32 int32 uint64 int64 uintn intn].each do |t|
+    context ".new(:#{t})" do
+      let(:type) { JIT::PointerType.new(t) }
+      subject { type }
       
-      it { should eql(t.to_sym) }
+      it_should_behave_like 'a pointer type'
+      
+      describe('ref_type') do
+        subject { type.ref_type }
+        
+        it_should_behave_like "an #{t} type"
+      end
     end
   end
-end
 
-describe '#pointer?' do
-  subject { @type.pointer? }
-  
-  %w[int8 int16 int32 int64 float32 float64 uint8 uint16 uint32 uint64 pointer
-     void].each do |t|
-    context "when ref type is '#{t}'" do
-      before { @type = JIT::PointerType.new(t) }
+  %w[float32 float64 pointer void].each do |t|
+    context ".new(:#{t})" do
+      let(:type) { JIT::PointerType.new(t) }
+      subject { type }
       
-      it { should be_true }
+      it_should_behave_like 'a pointer type'
+      
+      describe('ref_type') do
+        subject { type.ref_type }
+        
+        it_should_behave_like "a #{t} type"
+      end
     end
   end
-  
+
   # Pointer to a pointer to an 8-bit integer
-  context "when ref type is a int8 pointer" do
-    before { @type = JIT::PointerType.new(:pointer, :int8) }
+  context ".new(:pointer, :int8)" do
+    let(:type) { JIT::PointerType.new(:pointer, :int8) }
+    subject { type }
     
-    it { should be_true }
+    it_should_behave_like 'a pointer type'
+    
+    describe('ref_type') do
+      subject { type.ref_type }
+      
+      it_should_behave_like 'a pointer type'
+      
+      describe('ref_type') do
+        subject { type.ref_type.ref_type }
+        
+        it_should_behave_like 'an int8 type'
+      end
+    end
   end
-end
-
-# Pointer to a pointer to an 8-bit integer
-context "PointerType.new(PointerType.new(:int8))" do
-  before { @type = JIT::PointerType.new(JIT::PointerType.new(:int8)) }
-  
-  its('pointer?') { @type.pointer?.should be_true }
-  its('ref_type.pointer?') { @type.ref_type.pointer?.should be_true }
-  its('ref_type.ref_type.size') { @type.ref_type.ref_type.size.should eql(1) }
-end
-
 end
 

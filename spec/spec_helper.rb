@@ -1,4 +1,5 @@
 require File.dirname(__FILE__) + "/../lib/libjit"
+Dir["#{File.dirname(__FILE__)}/shared/**/*.rb"].each {|f| require f}
 
 module LibJITMatchers
 end

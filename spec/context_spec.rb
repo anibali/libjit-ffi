@@ -1,4 +1,4 @@
-require 'libjit'
+require 'spec_helper'
 
 def new_context_build &block
   context = JIT::Context.new

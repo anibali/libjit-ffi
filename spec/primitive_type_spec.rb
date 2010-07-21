@@ -1,96 +1,28 @@
-require 'libjit'
+require 'spec_helper'
 
 describe JIT::PrimitiveType do
-
-context ".new(:int8)" do
-  subject { JIT::PrimitiveType.new(:int8) }
-
-  its(:signed?)         { should be_true }
-  its(:unsigned?)       { should be_false }
-  its(:integer?)        { should be_true }
-  its(:floating_point?) { should be_false }
-  its(:struct?)         { should be_false }
-  its(:signature?)      { should be_false }
-  its(:pointer?)        { should be_false }
-  its(:void?)           { should be_false }
-  its(:size)            { should eql(1) }
-end
-
-context ".new(:intn)" do
-  subject { JIT::PrimitiveType.new(:intn) }
-
-  its(:signed?)         { should be_true }
-  its(:unsigned?)       { should be_false }
-  its(:integer?)        { should be_true }
-  its(:floating_point?) { should be_false }
-  its(:struct?)         { should be_false }
-  its(:signature?)      { should be_false }
-  its(:pointer?)        { should be_false }
-  its(:void?)           { should be_false }
-end
-
-context ".new(:uint64)" do
-  subject { JIT::PrimitiveType.new(:uint64) }
-
-  its(:signed?)         { should be_false }
-  its(:unsigned?)       { should be_true }
-  its(:integer?)        { should be_true }
-  its(:floating_point?) { should be_false }
-  its(:struct?)         { should be_false }
-  its(:signature?)      { should be_false }
-  its(:pointer?)        { should be_false }
-  its(:void?)           { should be_false }
-  its(:size)            { should eql(8) }
-end
-
-context ".new(:uintn)" do
-  subject { JIT::PrimitiveType.new(:uintn) }
-
-  its(:signed?)         { should be_false }
-  its(:unsigned?)       { should be_true }
-  its(:integer?)        { should be_true }
-  its(:floating_point?) { should be_false }
-  its(:struct?)         { should be_false }
-  its(:signature?)      { should be_false }
-  its(:pointer?)        { should be_false }
-  its(:void?)           { should be_false }
-end
-
-context ".new(:float32)" do
-  subject { JIT::PrimitiveType.new(:float32) }
-
-  its(:signed?)         { should be_true }
-  its(:unsigned?)       { should be_false }
-  its(:integer?)        { should be_false }
-  its(:floating_point?) { should be_true }
-  its(:struct?)         { should be_false }
-  its(:signature?)      { should be_false }
-  its(:pointer?)        { should be_false }
-  its(:void?)           { should be_false }
-  its(:size)            { should eql(4) }
-end
-
-context ".new(:float64)" do
-  subject { JIT::PrimitiveType.new(:float64) }
-
-  its(:signed?)         { should be_true }
-  its(:unsigned?)       { should be_false }
-  its(:integer?)        { should be_false }
-  its(:floating_point?) { should be_true }
-  its(:struct?)         { should be_false }
-  its(:signature?)      { should be_false }
-  its(:pointer?)        { should be_false }
-  its(:void?)           { should be_false }
-  its(:size)            { should eql(8) }
-end
-
-context ".new(:foobar)" do
-  it do
-    expect {
-      JIT::PrimitiveType.new(:foo_bar)
-    }.to raise_exception(JIT::UnsupportedTypeError)
+  %w[uint8 int8 uint16 int16 uint32 int32 uint64 int64 uintn intn].each do |t|
+    context ".new(:#{t})" do
+      subject { JIT::PrimitiveType.new(t.to_sym) }
+      
+      it_should_behave_like "an #{t} type"
+    end
   end
-end
 
+  %w[float32 float64].each do |t|
+    context ".new(:#{t})" do
+      subject { JIT::PrimitiveType.new(t.to_sym) }
+      
+      it_should_behave_like "a #{t} type"
+    end
+  end
+
+  context ".new(:foo_bar)" do
+    it do
+      expect {
+        JIT::PrimitiveType.new(:foo_bar)
+      }.to raise_exception(JIT::UnsupportedTypeError)
+    end
+  end
 end
 
