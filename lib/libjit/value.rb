@@ -32,6 +32,8 @@ class Value
       Pointer.allocate
     elsif type.void?
       Void.allocate
+    elsif type.bool?
+      Bool.allocate
     else
       Primitive.allocate
     end
@@ -88,9 +90,17 @@ class Value
   
   # Generate an instruction to convert this value into a boolean.
   #
-  # @return [Value] a temporary value representing the boolean.
+  # @return [Bool] a temporary value representing the boolean.
   def to_bool
-    Value.wrap LibJIT.jit_insn_to_bool(function.jit_t, jit_t)
+    v = Value.create function, :bool
+    v.store Value.wrap(LibJIT.jit_insn_to_bool(function.jit_t, jit_t))
+    v
+  end
+  
+  def to_not_bool
+    v = Value.create function, :bool
+    v.store Value.wrap(LibJIT.jit_insn_to_not_bool(function.jit_t, jit_t))
+    v
   end
   
   # Generate an instruction to cast this value into a new type.
@@ -110,49 +120,49 @@ class Primitive < Value
   # Generate an instruction to check whether this value is less than another value.
   #
   # @param [Primitive] other the other value to compare with.
-  # @return [Primitive] a temporary value representing the boolean result of the comparison.
+  # @return [Bool] a temporary value representing the boolean result of the comparison.
   def <(other)
-    Value.wrap LibJIT.jit_insn_lt(function.jit_t, jit_t, other.jit_t)
+    Value.wrap(LibJIT.jit_insn_lt(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
   # Generate an instruction to check whether this value is less than or equal to another value.
   #
   # @param [Primitive] other the other value to compare with.
-  # @return [Primitive] a temporary value representing the boolean result of the comparison.
+  # @return [Bool] a temporary value representing the boolean result of the comparison.
   def <=(other)
-    Value.wrap LibJIT.jit_insn_le(function.jit_t, jit_t, other.jit_t)
+    Value.wrap(LibJIT.jit_insn_le(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
   # Generate an instruction to check whether this value is greater than another value.
   #
   # @param [Primitive] other the other value to compare with.
-  # @return [Primitive] a temporary value representing the boolean result of the comparison.
+  # @return [Bool] a temporary value representing the boolean result of the comparison.
   def >(other)
-    Value.wrap LibJIT.jit_insn_gt(function.jit_t, jit_t, other.jit_t)
+    Value.wrap(LibJIT.jit_insn_gt(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
   # Generate an instruction to check whether this value is greater than or equal to another value.
   #
   # @param [Primitive] other the other value to compare with.
-  # @return [Primitive] a temporary value representing the boolean result of the comparison.
+  # @return [Bool] a temporary value representing the boolean result of the comparison.
   def >=(other)
-    Value.wrap LibJIT.jit_insn_ge(function.jit_t, jit_t, other.jit_t)
+    Value.wrap(LibJIT.jit_insn_ge(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
   # Generate an instruction to check whether this value is equal to another value.
   #
   # @param [Primitive] other the other value to compare with.
-  # @return [Primitive] a temporary value representing the boolean result of the comparison.
+  # @return [Bool] a temporary value representing the boolean result of the comparison.
   def eq(other)
-    Value.wrap LibJIT.jit_insn_eq(function.jit_t, jit_t, other.jit_t)
+    Value.wrap(LibJIT.jit_insn_eq(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
   # Generate an instruction to check whether this value is not equal to another value.
   #
   # @param [Primitive] other the other value to compare with.
-  # @return [Primitive] a temporary value representing the boolean result of the comparison.
+  # @return [Bool] a temporary value representing the boolean result of the comparison.
   def ne(other)
-    Value.wrap LibJIT.jit_insn_ne(function.jit_t, jit_t, other.jit_t)
+    Value.wrap(LibJIT.jit_insn_ne(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
   # Generate an instruction to calculate the bitwise negation of this value.
@@ -261,6 +271,24 @@ class Primitive < Value
   end
 end
 
+class Bool < Primitive
+  def not
+    self.to_not_bool
+  end
+  
+  def and(other)
+    (self & other).to_bool
+  end
+  
+  def or(other)
+    (self | other).to_bool
+  end
+  
+  def xor(other)
+    (self ^ other).to_bool
+  end
+end
+
 class Pointer < Primitive
   # Generate an instruction to retrieve the value being pointed to. If an
   # explicit type is not specified it will be inferred.
@@ -330,6 +358,10 @@ class Constant < Primitive
       LibJIT.jit_value_create_float32_constant(@function.jit_t, @type.jit_t, val)
     when :float64
       LibJIT.jit_value_create_float64_constant(@function.jit_t, @type.jit_t, val)
+    when :bool
+      val = 1 if val == true
+      val = 0 if val == false
+      LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
     else
       raise JIT::TypeError.new("'#{@sym}' is not a supported type for constant creation")
     end

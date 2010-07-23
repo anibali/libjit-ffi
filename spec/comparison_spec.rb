@@ -12,15 +12,15 @@ pairs.dup.each { |a, b| pairs << [b, a] unless a == b }
 # Less than
 describe '#<' do
   let :func do
-    @context.build_function [:int8, :int8], :int8 do |f|
+    @context.build_function [:int8, :int8], :bool do |f|
       f.return f.arg(0) < f.arg(1)
     end
   end
   
   pairs.each do |a, b|
     context "when evaluating '#{a} < #{b}'" do
-      subject { func[a, b] != 0 }
-      it { should be(a < b) }
+      subject { func[a, b] }
+      it { should eql(a < b) }
     end
   end
 end
@@ -28,15 +28,15 @@ end
 # Less than or equal to
 describe '#<=' do
   let :func do
-    @context.build_function [:int8, :int8], :int8 do |f|
+    @context.build_function [:int8, :int8], :bool do |f|
       f.return f.arg(0) <= f.arg(1)
     end
   end
   
   pairs.each do |a, b|
     context "when evaluating '#{a} <= #{b}'" do
-      subject { func[a, b] != 0 }
-      it { should be(a <= b) }
+      subject { func[a, b] }
+      it { should eql(a <= b) }
     end
   end
 end
@@ -44,15 +44,15 @@ end
 # Greater than
 describe '#>' do
   let :func do
-    @context.build_function [:int8, :int8], :int8 do |f|
+    @context.build_function [:int8, :int8], :bool do |f|
       f.return f.arg(0) > f.arg(1)
     end
   end
   
   pairs.each do |a, b|
     context "when evaluating '#{a} > #{b}'" do
-      subject { func[a, b] != 0 }
-      it { should be(a > b) }
+      subject { func[a, b] }
+      it { should eql(a > b) }
     end
   end
 end
@@ -60,15 +60,15 @@ end
 # Greater than or equal to
 describe '#>=' do
   let :func do
-    @context.build_function [:int8, :int8], :int8 do |f|
+    @context.build_function [:int8, :int8], :bool do |f|
       f.return f.arg(0) >= f.arg(1)
     end
   end
   
   pairs.each do |a, b|
     context "when evaluating '#{a} >= #{b}'" do
-      subject { func[a, b] != 0 }
-      it { should be(a >= b) }
+      subject { func[a, b] }
+      it { should eql(a >= b) }
     end
   end
 end
@@ -76,15 +76,15 @@ end
 # Equal to
 describe '#eq' do
   let :func do
-    @context.build_function [:int8, :int8], :int8 do |f|
+    @context.build_function [:int8, :int8], :bool do |f|
       f.return f.arg(0).eq(f.arg(1))
     end
   end
   
   pairs.each do |a, b|
     context "when evaluating '#{a} == #{b}'" do
-      subject { func[a, b] != 0 }
-      it { should be(a == b) }
+      subject { func[a, b] }
+      it { should eql(a == b) }
     end
   end
 end
@@ -92,15 +92,15 @@ end
 # Not equal to
 describe '#ne' do
   let :func do
-    @context.build_function [:int8, :int8], :int8 do |f|
+    @context.build_function [:int8, :int8], :bool do |f|
       f.return f.arg(0).ne(f.arg(1))
     end
   end
   
   pairs.each do |a, b|
     context "when evaluating '#{a} != #{b}'" do
-      subject { func[a, b] != 0 }
-      it { should be(a != b) }
+      subject { func[a, b] }
+      it { should eql(a != b) }
     end
   end
 end

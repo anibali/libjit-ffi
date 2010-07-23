@@ -34,6 +34,11 @@ class Function
     # Turn each element of 'args' into a pointer to its value
     signature.param_types.each_with_index do |type, i|
       ptr = FFI::MemoryPointer.new(type.to_ffi_type, 1)
+      if type.bool?
+        args[i] = 1 if args[i] == true
+        args[i] = 0 if args[i] == false
+      end
+      
       ptr.send("put_#{type.to_ffi_type}", 0, args[i])
       args[i] = ptr
     end
@@ -53,7 +58,12 @@ class Function
     
     # Return with our results
     unless signature.return_type.void?
-      return return_ptr.send("get_#{signature.return_type.to_ffi_type}", 0)
+      res = return_ptr.send("get_#{signature.return_type.to_ffi_type}", 0)
+      if signature.return_type.bool?
+        return res != 0
+      else
+        return res
+      end
     end
     
     return
@@ -122,11 +132,11 @@ class Function
   end
 
   def true
-    const(1, :int8)
+    const(1, :bool)
   end
 
   def false
-    const(0, :int8)
+    const(0, :bool)
   end
   
   def jmp label

@@ -23,7 +23,10 @@ module LibJIT
     :int32, :uint32, :intn, :uintn, :int64, :uint64, :float32, :float64,
     :floatn, :struct, :union, :signature, :pointer]
   enum :jit_typetag_t, [:name, 10000, :struct_name, :union_name, :enum_name,
-    :const, :volatile, :reference, :output, :restrict]
+    :const, :volatile, :reference, :output, :restrict, :sys_bool, :sys_char,
+    :sys_schar, :sys_uchar, :sys_short, :sys_ushort, :sys_int, :sys_uint,
+    :sys_long, :sys_ulong, :sys_longlong, :sys_ulonglong, :sys_float,
+    :sys_double, :sys_longdouble]
   
   attach_function :jit_context_create, [], :pointer
   attach_function :jit_context_destroy, [:pointer], :void

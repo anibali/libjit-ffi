@@ -33,6 +33,8 @@ class Type
       StructType.new(*args[1..-1])
     when :void
       VoidType.new(*args[1..-1])
+    when :bool, :boolean
+      BoolType.new(*args[1..-1])
     else
       PrimitiveType.new(*args)
     end
@@ -52,8 +54,10 @@ class Type
       PointerType.wrap jit_t
     elsif t.signature?
       SignatureType.wrap jit_t
-    elsif LibJIT.jit_type_get_kind(jit_t) == :void
+    elsif t.void?
       VoidType.wrap jit_t
+    elsif t.bool?
+      BoolType.wrap jit_t
     else
       PrimitiveType.wrap jit_t
     end
@@ -65,8 +69,23 @@ class Type
     end
   end
   
+  def boolean?
+    bool?
+  end
+  
+  def bool?
+    t = jit_t
+    until t.null?
+      if LibJIT.jit_type_get_tagged_kind(t) == :sys_bool
+        return true
+      end
+      t = LibJIT.jit_type_get_tagged_type(t)
+    end
+    return false
+  end
+  
   def void?
-    false
+    LibJIT.jit_type_get_kind(jit_t) == :void
   end
   
   def primitive?
@@ -138,7 +157,7 @@ class PrimitiveType < Type
     :intn    => :long,
     :uintn   => :ulong,
     :float32 => :float,
-    :float64 => :double
+    :float64 => :double,
   }.freeze
   
   # Create a primitive type. Acceptable arguments are :int8, :uint8, :int16,
@@ -214,6 +233,26 @@ class PrimitiveType < Type
   # @return [Symbol] the Ruby symbol representation of this type.
   def to_sym
     @sym ||= LibJIT.jit_type_get_kind(@jit_t)
+  end
+end
+
+class BoolType < PrimitiveType
+  def initialize
+    @jit_t = LibJIT.jit_type_create_tagged Type.create(:int8).jit_t, :sys_bool, nil, nil, 1
+  end
+  
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
+  end
+  
+  def to_sym
+    :bool
+  end
+  
+  def to_ffi_type
+    :int8
   end
 end
 

@@ -41,8 +41,3 @@ Limitations
 
 * Function building is not thread-safe.
 
-TODO
-----
-
-* Boolean NOT (!), AND (&&), XOR (&#94;&#94;), OR (||).
-
