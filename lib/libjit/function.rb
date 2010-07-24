@@ -87,7 +87,7 @@ class Function
   end
   
   def const(val, *type)
-    Constant.new self, val, *type
+    Constant.create self, val, *type
   end
   
   # Create null-terminated string in stack memory.

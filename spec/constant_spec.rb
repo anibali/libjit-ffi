@@ -14,11 +14,11 @@ context "when type is 'uint32'" do
         end.call.should eql(x)
       end
 
-      describe "#to_numeric" do
+      describe "#to_i" do
         it do
            context.build_function [], :void do |f|
             num = f.const(x, :uint32)
-            num.to_numeric.should eql(x)
+            num.to_i.should eql(x)
           end
         end
       end
@@ -36,11 +36,11 @@ context "when type is 'uint64'" do
         end.call.should eql(x)
       end
 
-      describe "#to_numeric" do
+      describe "#to_i" do
         it do
           context.build_function [], :void do |f|
             num = f.const(x, :uint64)
-            num.to_numeric.should eql(x)
+            num.to_i.should eql(x)
           end
         end
       end
@@ -58,11 +58,11 @@ context "when type is 'uintn'" do
         end.call.should eql(x)
       end
 
-      describe "#to_numeric" do
+      describe "#to_i" do
         it do
            context.build_function [], :void do |f|
             num = f.const(x, :uintn)
-            num.to_numeric.should eql(x)
+            num.to_i.should eql(x)
           end
         end
       end
