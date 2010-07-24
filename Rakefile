@@ -13,11 +13,12 @@ CLOBBER.include("**/*.so", "pkg", "doc")
 #TODO: Jeweler task for each platform
 
 Jeweler::Tasks.new do |s|
-  s.name = "libjit-ffi"
-  s.summary = "Ruby bindings for libjit using FFI"
+  s.name = 'libjit-ffi'
+  s.summary = 'Ruby bindings for libjit using FFI'
   s.description = s.summary
   s.author = 'Aiden Nibali'
   s.email = 'dismal.denizen@gmail.com'
+  s.homepage = 'http://github.com/dismaldenizen/libjit-ffi'
   
   s.add_dependency('ffi')
   
