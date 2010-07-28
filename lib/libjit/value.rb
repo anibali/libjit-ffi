@@ -92,15 +92,16 @@ class Value
   #
   # @return [Bool] a temporary value representing the boolean.
   def to_bool
+    return self if type.bool?
     v = Value.create function, :bool
     v.store Value.wrap(LibJIT.jit_insn_to_bool(function.jit_t, jit_t))
-    v
+    return v
   end
   
   def to_not_bool
     v = Value.create function, :bool
     v.store Value.wrap(LibJIT.jit_insn_to_not_bool(function.jit_t, jit_t))
-    v
+    return v
   end
   
   # Generate an instruction to cast this value into a new type.
