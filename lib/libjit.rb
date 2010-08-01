@@ -13,11 +13,7 @@ require 'libjit/label'
 module LibJIT
   extend FFI::Library
   
-  unless defined? LIB_PATH
-    LIB_PATH = Pathname.new(__FILE__).expand_path.dirname.join("libjitextra.so").to_s
-  end
-  
-  ffi_lib LIB_PATH
+  ffi_lib %w[libjitextra.so libjitextra.dll].map { |name| Pathname.new(__FILE__).expand_path.dirname.join(name).to_s }
   
   enum :jit_abi_t, [:cdecl, :vararg, :stdcall, :fastcall]
   enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
@@ -141,7 +137,7 @@ module JIT
   module LibC
     extend FFI::Library
     
-    ffi_lib FFI::Platform::LIBC, LibJIT::LIB_PATH
+    ffi_lib FFI::Platform::LIBC
     
     @bound = {}
     
@@ -166,11 +162,8 @@ module JIT
     bind :puts, [:pointer], :int32
     bind :putchar, [:int32], :int32
     bind :getchar, [], :int32
-
-    bind :jit_malloc, [:uint32], :pointer
-    @bound[:malloc] = @bound[:jit_malloc]
-    bind :jit_free, [:pointer], :void
-    @bound[:free] = @bound[:jit_free]
+    bind :malloc, [:uint32], :pointer
+    bind :free, [:pointer], :void
   end
 
   class C

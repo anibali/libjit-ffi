@@ -92,7 +92,7 @@ describe "puts" do
   end
 
   it "should print the string '#{ruby_string}' successfully" do
-    func.call.should_not eql(0)
+    func.call.should be >= 0
   end
 end
 
