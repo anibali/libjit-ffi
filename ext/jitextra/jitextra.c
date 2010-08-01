@@ -77,8 +77,3 @@ jit_type_t jit_type_from_string(char* str)
   return type;
 }
 
-jit_label_t jit_undef_label()
-{
-  return jit_label_undefined;
-}
-
