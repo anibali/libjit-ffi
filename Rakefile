@@ -7,10 +7,9 @@ require 'yard'
 require 'pathname'
 require 'fileutils'
 
-CLEAN.include("**/*.o")
-CLOBBER.include("**/*.so", "pkg", "doc")
+CLOBBER.include("pkg", "doc")
 
-#TODO: Jeweler task for each platform
+#TODO: Task for each platform
 
 Jeweler::Tasks.new do |s|
   s.name = 'libjit-ffi'
@@ -34,26 +33,6 @@ end
 Jeweler::GemcutterTasks.new
 
 cur_path = Pathname.new(__FILE__).expand_path.dirname
-
-desc "Compile native extensions for libjit-ffi."
-task :compile => ["compile:jitplus"]
-
-namespace :compile do
-  desc "Compile jitextra."
-  task :jitplus do
-    src_path = cur_path.join("ext", "jitextra")
-    
-    Dir.chdir src_path.realpath do
-      sh "rake"
-    end
-    
-    lib_file_src = src_path.join("libjitextra.so").realpath
-    lib_file_dest = cur_path.join("lib", "libjitextra.so").to_s
-    FileUtils.cp lib_file_src, lib_file_dest
-  end
-end
-
-task :build => ['compile']
 
 desc "Run all RSpec examples."
 Spec::Rake::SpecTask.new('spec') do |t|

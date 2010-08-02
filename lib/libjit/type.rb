@@ -168,9 +168,9 @@ class PrimitiveType < Type
   def initialize sym
     @sym = sym.to_sym
     
-    @jit_t = LibJIT.jit_type_from_string(JIT_SYM_MAP[@sym].to_s)
-    
-    if @jit_t.null?
+    if LibJIT.respond_to? "jit_type_#{JIT_SYM_MAP[@sym]}"
+      @jit_t = LibJIT.send "jit_type_#{JIT_SYM_MAP[@sym]}"
+    else
       raise JIT::UnsupportedTypeError.new("'#{@sym}' is not a supported primitive type")
     end
   end
@@ -238,7 +238,7 @@ end
 
 class BoolType < PrimitiveType
   def initialize
-    @jit_t = LibJIT.jit_type_create_tagged Type.create(:int8).jit_t, :sys_bool, nil, nil, 1
+    @jit_t = LibJIT.jit_type_create_tagged LibJIT.jit_type_sbyte, :sys_bool, nil, nil, 1
   end
   
   def self.wrap jit_t
@@ -258,7 +258,7 @@ end
 
 class VoidType < Type
   def initialize
-    @jit_t = LibJIT.jit_type_from_string('void')
+    @jit_t = LibJIT.jit_type_void
   end
   
   # Create a void type by wrapping an FFI pointer representing a jit_type_t

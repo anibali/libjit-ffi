@@ -13,7 +13,9 @@ require 'libjit/label'
 module LibJIT
   extend FFI::Library
   
-  ffi_lib %w[libjitextra.so libjitextra.dll].map { |name| Pathname.new(__FILE__).expand_path.dirname.join(name).to_s }
+  ffi_lib %w[libjit.so libjit.dll].map do |name|
+    Pathname.new(__FILE__).expand_path.dirname.join(name).to_s
+  end
   
   enum :jit_abi_t, [:cdecl, :vararg, :stdcall, :fastcall]
   enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
@@ -24,6 +26,11 @@ module LibJIT
     :sys_schar, :sys_uchar, :sys_short, :sys_ushort, :sys_int, :sys_uint,
     :sys_long, :sys_ulong, :sys_longlong, :sys_ulonglong, :sys_float,
     :sys_double, :sys_longdouble]
+  
+  %w[void sbyte ubyte short ushort int uint nint nuint long ulong float32
+  float64 nfloat void_ptr].each do |t|
+    attach_variable :"jit_type_#{t}", :pointer
+  end
   
   attach_function :jit_context_create, [], :pointer
   attach_function :jit_context_destroy, [:pointer], :void
@@ -53,8 +60,6 @@ module LibJIT
   attach_function :jit_type_is_pointer, [:pointer], :bool
   attach_function :jit_type_is_signature, [:pointer], :bool
   attach_function :jit_type_get_kind, [:pointer], :jit_kind_t
-  
-  attach_function :jit_type_from_string, [:string], :pointer
   
   attach_function :jit_function_create, [:pointer, :pointer], :pointer
   attach_function :jit_function_compile, [:pointer], :void
@@ -110,7 +115,7 @@ module LibJIT
   attach_function :jit_value_set_addressable, [:pointer], :void
   attach_function :jit_value_is_addressable, [:pointer], :bool
   
-  def self.jit_undef_label ; -1 ; end
+  def self.jit_label_undefined ; -1 ; end
   attach_function :jit_insn_label, [:pointer, :pointer], :void
   attach_function :jit_insn_branch, [:pointer, :pointer], :void
   attach_function :jit_insn_branch_if, [:pointer, :pointer, :pointer], :void

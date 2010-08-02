@@ -5,7 +5,7 @@ class Label
   def initialize(function)
     @function = function
     @jit_t = FFI::MemoryPointer.new(:long, 1)
-    @jit_t.put_long 0, LibJIT.jit_undef_label
+    @jit_t.put_long 0, LibJIT.jit_label_undefined
   end
   
   def self.wrap(function, jit_t)
