@@ -13,9 +13,11 @@ require 'libjit/label'
 module LibJIT
   extend FFI::Library
   
-  ffi_lib %w[libjit.so libjit.dll].map do |name|
+  lib_opts = %w[libjit.so libjit.dll].map do |name|
     Pathname.new(__FILE__).expand_path.dirname.join(name).to_s
   end
+  
+  ffi_lib lib_opts
   
   enum :jit_abi_t, [:cdecl, :vararg, :stdcall, :fastcall]
   enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
