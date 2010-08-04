@@ -9,14 +9,14 @@ end
 context "when type is 'int32'" do
   describe "#**" do
     before do
-      @func = @context.build_function [:int32, :int32], :int32 do |f|
+      @func = @context.build_function [:int32, :int32], :float32 do |f|
         f.return f.arg(0) ** f.arg(1)
       end
     end
     
     [2, 8, 9, 3, 20, 0, -5, 3].each_slice(2) do |a, b|
       context "when evaluating #{a} ** #{b}" do
-        it { @func[a, b].should eql(a ** b) }
+        it { @func[a, b].should be_close(a ** b, 0.0001) }
       end
     end
   end
@@ -41,7 +41,7 @@ end
 describe "#acos" do
   before do
     @func = @context.build_function [:float32], :float32 do |f|
-      f.return f.acos(f.arg(0))
+      f.return f.math.acos(f.arg(0))
     end
   end
   

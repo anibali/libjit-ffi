@@ -10,14 +10,16 @@ require 'libjit/control_structures'
 require 'libjit/function'
 require 'libjit/label'
 
+# This module contains raw FFI bindings to LibJIT functions. If you are not a
+# developer for libjit-ffi, you shouldn't need to use anything in this module!
 module LibJIT
   extend FFI::Library
   
-  lib_opts = %w[libjit.so libjit.dll].map do |name|
+  LIB_OPTS = %w[libjit.so libjit.dll].map do |name|
     Pathname.new(__FILE__).expand_path.dirname.join(name).to_s
-  end
+  end unless defined? LIB_OPTS
   
-  ffi_lib lib_opts
+  ffi_lib LIB_OPTS
   
   enum :jit_abi_t, [:cdecl, :vararg, :stdcall, :fastcall]
   enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
@@ -86,6 +88,7 @@ module LibJIT
   attach_function :jit_insn_add, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_sub, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_rem, [:pointer, :pointer, :pointer], :pointer
+  attach_function :jit_insn_pow, [:pointer, :pointer, :pointer], :pointer
   # Comparison
   attach_function :jit_insn_lt, [:pointer, :pointer, :pointer], :pointer
   attach_function :jit_insn_le, [:pointer, :pointer, :pointer], :pointer
@@ -96,16 +99,6 @@ module LibJIT
   # Conversion
   attach_function :jit_insn_to_bool, [:pointer, :pointer], :pointer
   attach_function :jit_insn_to_not_bool, [:pointer, :pointer], :pointer
-  # Mathematical functions
-  attach_function :jit_insn_acos, [:pointer, :pointer], :pointer
-  attach_function :jit_insn_asin, [:pointer, :pointer], :pointer
-  attach_function :jit_insn_atan, [:pointer, :pointer], :pointer
-  attach_function :jit_insn_atan2, [:pointer, :pointer, :pointer], :pointer
-  attach_function :jit_insn_ceil, [:pointer, :pointer], :pointer
-  attach_function :jit_insn_cos, [:pointer, :pointer], :pointer
-  attach_function :jit_insn_cosh, [:pointer, :pointer], :pointer
-  attach_function :jit_insn_pow, [:pointer, :pointer, :pointer], :pointer
-  #TODO: more...
   
   attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
   attach_function :jit_insn_load_relative, [:pointer, :pointer, :long, :pointer], :pointer
@@ -138,6 +131,32 @@ module LibJIT
   attach_function :jit_value_get_long_constant, [:pointer], :long_long
   attach_function :jit_value_get_float32_constant, [:pointer], :float
   attach_function :jit_value_get_float64_constant, [:pointer], :double
+  
+  module Math
+    extend FFI::Library
+    
+    ffi_lib LibJIT::LIB_OPTS
+  
+    attach_function :acos, :jit_insn_acos, [:pointer, :pointer], :pointer
+    attach_function :asin, :jit_insn_asin, [:pointer, :pointer], :pointer
+    attach_function :atan, :jit_insn_atan, [:pointer, :pointer], :pointer
+    attach_function :atan2, :jit_insn_atan2, [:pointer, :pointer, :pointer], :pointer
+    attach_function :ceil, :jit_insn_ceil, [:pointer, :pointer], :pointer
+    attach_function :cos, :jit_insn_cos, [:pointer, :pointer], :pointer
+    attach_function :cosh, :jit_insn_cosh, [:pointer, :pointer], :pointer
+    attach_function :exp, :jit_insn_exp, [:pointer, :pointer], :pointer
+    attach_function :floor, :jit_insn_floor, [:pointer, :pointer], :pointer
+    attach_function :log, :jit_insn_log, [:pointer, :pointer], :pointer
+    attach_function :log10, :jit_insn_log10, [:pointer, :pointer], :pointer
+    attach_function :rint, :jit_insn_rint, [:pointer, :pointer], :pointer
+    attach_function :round, :jit_insn_round, [:pointer, :pointer], :pointer
+    attach_function :sin, :jit_insn_sin, [:pointer, :pointer], :pointer
+    attach_function :sinh, :jit_insn_sinh, [:pointer, :pointer], :pointer
+    attach_function :sqrt, :jit_insn_sqrt, [:pointer, :pointer], :pointer
+    attach_function :tan, :jit_insn_tan, [:pointer, :pointer], :pointer
+    attach_function :tanh, :jit_insn_tanh, [:pointer, :pointer], :pointer
+    #TODO: more...
+  end
 end
 
 module JIT
