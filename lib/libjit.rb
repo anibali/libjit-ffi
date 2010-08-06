@@ -18,6 +18,7 @@ module LibJIT
   LIB_OPTS = %w[libjit.so libjit.dll].map do |name|
     Pathname.new(__FILE__).expand_path.dirname.join(name).to_s
   end unless defined? LIB_OPTS
+  LIB_OPTS << 'jit'
   
   ffi_lib LIB_OPTS
   

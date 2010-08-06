@@ -33,6 +33,17 @@ Example
     
     puts multiply[6, 7] #=> 42
 
+Installing
+----------
+
+### From source
+
+1. Download the libjit 0.1.2 source tarball, extract it, `./configure` it,
+   `make` it, then `make install` it.
+2. Download the source for libjit-ffi.
+3. Run `sudo rake install` from inside the libjit-ffi directory to build the
+   gem and install it.
+
 Features
 --------
 
