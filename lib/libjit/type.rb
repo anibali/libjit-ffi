@@ -428,22 +428,24 @@ class StructType < Type
   # Get a field's memory offset from its index.
   #
   # @return [Integer] the field's offset.
-  def offset index
-    LibJIT.jit_type_get_offset(jit_t, index)
+  def offset field
+    field = find_field(field) unless field.is_a? Integer
+    LibJIT.jit_type_get_offset(jit_t, field)
   end
   
   # Get a field's type from its index.
   #
   # @return [Type] the field's type.
-  def field_type index
-    Type.wrap LibJIT.jit_type_get_field(jit_t, index)
+  def field_type field
+    field = find_field(field) unless field.is_a? Integer
+    Type.wrap LibJIT.jit_type_get_field(jit_t, field)
   end
   
   # Get a field's index from its name.
   #
   # @return [Integer] the field's index.
   def find_field name
-    LibJIT.jit_type_find_name jit_t, name
+    LibJIT.jit_type_find_name jit_t, name.to_s
   end
   
   # Set names for each of this struct's fields.
