@@ -315,6 +315,15 @@ class Pointer < Primitive
   def mstore(value, offset=0)
     LibJIT.jit_insn_store_relative(function.jit_t, self.jit_t, offset, value.jit_t)
   end
+  
+  def mload offset, *type
+    type = Type.create(*type)
+    Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, offset, type.jit_t)
+  end
+  
+  def ref_type
+    Type.wrap LibJIT.jit_type_get_ref(self.type.jit_t)
+  end
 end
 
 class Struct < Value
