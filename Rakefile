@@ -7,7 +7,7 @@ require 'yard'
 require 'pathname'
 require 'fileutils'
 
-CLOBBER.include("pkg", "doc")
+CLOBBER.include("pkg", "doc", "*.gemspec")
 
 #TODO: Task for each platform
 

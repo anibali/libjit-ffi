@@ -13,12 +13,12 @@ describe JIT::StructType do
   end
 
   describe '#name' do
-    subject { @type.name }
+    subject { @type.struct_name }
     
     context "when name is set to 'point'" do
       before do
         @type = JIT::StructType.new
-        @type.name = "point"
+        @type.struct_name = "point"
       end
       
       it { should eql("point") }
@@ -44,6 +44,17 @@ describe JIT::StructType do
       end
       
       it { should eql(0) }
+    end
+    
+    context "when struct name is 'point' and field names are 'x' and 'y' and required field is 'x'" do
+      before do
+        @type = JIT::StructType.new(:int32, :int32)
+        @type.struct_name = 'point'
+        @type.field_names = ['x', 'y']
+        @field = 'x'
+      end
+      
+      it { pending ; should eql(0) }
     end
   end
 end

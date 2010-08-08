@@ -467,7 +467,7 @@ class StructType < Type
   # Set this struct's name.
   #
   # @param [String] name the name to set.
-  def name=(name)
+  def struct_name=(name)
     @jit_t = LibJIT.jit_type_create_tagged(jit_t, :struct_name, name, nil, 1)
     @name = name
   end
@@ -475,7 +475,7 @@ class StructType < Type
   # Get this struct's name.
   #
   # @return [String] the name.
-  def name
+  def struct_name
     if @name.nil?
       t = jit_t
       

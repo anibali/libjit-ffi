@@ -320,7 +320,7 @@ end
 class Struct < Value
   # Generate an instruction to load the value of a field.
   #
-  # @param [Integer] field the field's name or index.
+  # @param field the field's name or index.
   # @return [Value] the field's value.
   def [](field)
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, self.address.jit_t, type.offset(field), type.field_type(field).jit_t)
@@ -328,7 +328,7 @@ class Struct < Value
   
   # Generate an instruction to store a value in a field.
   #
-  # @param [Integer] field the field's name or index.
+  # @param field the field's name or index.
   # @param [Value] value the value to store.
   def []=(field, value)
     LibJIT.jit_insn_store_relative(function.jit_t, self.address.jit_t, type.offset(field), value.jit_t)
