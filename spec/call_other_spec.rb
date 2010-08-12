@@ -22,6 +22,15 @@ describe "#call_other" do
       it { @square[a].should eql(a ** 2) }
     end
   end
+  
+  it "should raise ArgumentError when passed too many arguments" do
+    expect {
+      func = @context.build_function [], :void do |f|
+        f.return(f.call_other(@int_pow, f.null, f.null, f.null))
+      end
+      func.call
+    }.to raise_exception ArgumentError
+  end
 end
 
 after do

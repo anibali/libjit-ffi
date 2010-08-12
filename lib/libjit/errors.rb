@@ -3,4 +3,5 @@ module JIT
   
   class TypeError < Error ; end
   class UnsupportedTypeError < TypeError ; end
+  class InstructionError < Error ; end
 end

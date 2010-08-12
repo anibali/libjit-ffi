@@ -31,6 +31,12 @@ class Function
   end
   
   def call(*args)
+    n_args = args.length
+    expected_n_args = signature.param_types.length
+    if n_args != expected_n_args
+      raise ArgumentError.new expected_n_args, n_args
+    end
+  
     # Turn each element of 'args' into a pointer to its value
     signature.param_types.each_with_index do |type, i|
       ptr = FFI::MemoryPointer.new(type.to_ffi_type, 1)
@@ -74,6 +80,9 @@ class Function
   end
   
   def arg(i)
+    unless i >= 0 and i < signature.param_types.length
+      raise InstructionError.new("argument index #{i} is out of bounds")
+    end
     Value.wrap LibJIT.jit_value_get_param(jit_t, i.to_i)
   end
   
@@ -105,16 +114,28 @@ class Function
   end
   
   def call_other(func, *args)
+    n_args = args.length
+    expected_n_args = func.signature.param_types.length
+    if n_args != expected_n_args
+      raise ArgumentError.new expected_n_args, n_args
+    end
+    
     # Turn each element of 'args' into a pointer to its value
     args = args.map {|val| val.jit_t}
     # Make a C array representation of 'args'
-    args_ptr = FFI::MemoryPointer.new(:pointer, args.length)
+    args_ptr = FFI::MemoryPointer.new(:pointer, n_args)
     args_ptr.put_array_of_pointer 0, args
     
-    Value.wrap LibJIT.jit_insn_call(jit_t, nil, func.jit_t, nil, args_ptr, args.length, 0)
+    Value.wrap LibJIT.jit_insn_call(jit_t, nil, func.jit_t, nil, args_ptr, n_args, 0)
   end
   
   def call_native(func, signature, *args)
+    n_args = args.length
+    expected_n_args = signature.param_types.length
+    if n_args != expected_n_args
+      raise ArgumentError.new expected_n_args, n_args
+    end
+  
     # Make a C array representation of 'args'
     args_ptr = FFI::MemoryPointer.new(:pointer, args.length)
     args = args.map {|val| val.jit_t}
