@@ -96,6 +96,22 @@ describe "puts" do
   end
 end
 
+describe "printf" do
+  ruby_string = "[%d, %d]"
+  
+  let(:func) do
+    context.build_function [], :int32 do |f|
+      str = f.stringz(ruby_string)
+      # Call puts and return result
+      f.return(f.c.printf str, f.const(42, :int32), f.const(3, :int8))
+    end
+  end
+
+  it "should print the string '[42, 3]' successfully" do
+    func.call.should be >= 0
+  end
+end
+
 after do
   context.destroy # Die monster, you don't belong in this world!
 end

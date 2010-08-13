@@ -135,13 +135,13 @@ class Function
     if n_args != expected_n_args
       raise ArgumentError.new expected_n_args, n_args
     end
-  
+    
     # Make a C array representation of 'args'
     args_ptr = FFI::MemoryPointer.new(:pointer, args.length)
     args = args.map {|val| val.jit_t}
     args_ptr.put_array_of_pointer 0, args
   
-    Value.wrap LibJIT.jit_insn_call_native(jit_t, nil, func, signature.jit_t, args_ptr, args.length, 0, 0)
+    Value.wrap LibJIT.jit_insn_call_native(jit_t, nil, func, signature.jit_t, args_ptr, n_args, 0, 0)
   end
 
   def c
