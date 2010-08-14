@@ -41,14 +41,14 @@ class Context
   def build_start
     if defined? @@current and not @@current.nil?
       if @@current == self
-        raise JIT::Error.new("Context already holds the build lock")
+        raise JIT::Error.new("context already holds the build lock")
       else
-        raise JIT::Error.new("Another context holds the build lock")
+        raise JIT::Error.new("another context holds the build lock")
       end
     end
   
     if @jit_t.nil?
-      raise JIT::Error.new("Context can't be used to build once destroyed")
+      raise JIT::Error.new("context can't be used to build once destroyed")
     end
     
     @@current = self

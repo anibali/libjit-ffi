@@ -7,7 +7,7 @@ class Constant
   # @param [Number] val the number to be represented by the constant.
   # @param [Type] *type the type of the constant.
   def self.create(function, val, *type)
-    raise ArgumentError.new "Function can't be nil" if function.nil?
+    raise ArgumentError.new "function can't be nil" if function.nil?
     
     type = Type.create *type
     if type.bool?
@@ -35,7 +35,7 @@ class IntConstant < Primitive
       val = [val].pack('Q').unpack('q').first if @type.unsigned?
       LibJIT.jit_value_create_long_constant(@function.jit_t, @type.jit_t, val)
     else
-      raise JIT::TypeError.new("Creation of '#{@sym}' constants not supported")
+      raise JIT::TypeError.new("creation of '#{@sym}' integer constants not supported")
     end
   end
   
@@ -53,12 +53,12 @@ class IntConstant < Primitive
       # Turn unsigned integer into a signed one if appropriate
       [val].pack('q').unpack('Q').first if type.unsigned?
     else
-      raise JIT::TypeError.new("Constant is not of a supported int type")
+      raise JIT::TypeError.new("constant is not of a supported integer type")
     end
   end
 end
 
-class FloatConstant
+class FloatConstant < Primitive
   def initialize(function, val, *type)
     @function = function
     @type = Type.create *type
@@ -69,7 +69,7 @@ class FloatConstant
     when :float64
       LibJIT.jit_value_create_float64_constant(@function.jit_t, @type.jit_t, val)
     else
-      raise JIT::TypeError.new("Creation of '#{@sym}' constants not supported")
+      raise JIT::TypeError.new("creation of '#{@sym}' float constants not supported")
     end
   end
   
@@ -81,7 +81,7 @@ class FloatConstant
     when :float64
       LibJIT.jit_value_get_float64_constant jit_t
     else
-      raise JIT::TypeError.new("Constant is not of a supported float type")
+      raise JIT::TypeError.new("constant is not of a supported float type")
     end
   end
 end

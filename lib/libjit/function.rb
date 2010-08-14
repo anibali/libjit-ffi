@@ -5,7 +5,7 @@ class Function
   
   def initialize(param_types, return_type)
     @signature = SignatureType.new(param_types, return_type)
-    @jit_t = LibJIT.jit_function_create(Context.current.jit_t, @signature.jit_t)
+    @jit_t = LibJIT.jit_function_create(context.jit_t, @signature.jit_t)
   end
   
   def self.wrap jit_t
@@ -16,6 +16,10 @@ class Function
   
   def signature
     @signature ||= Type.wrap LibJIT.jit_function_get_signature(jit_t)
+  end
+  
+  def context
+    @context ||= Context.current
   end
   
   def compile
@@ -31,6 +35,10 @@ class Function
   end
   
   def call(*args)
+    if context.destroyed?
+      raise JIT::Error.new("can't call function, context has been destroyed")
+    end
+    
     n_args = args.length
     expected_n_args = signature.param_types.length
     if n_args != expected_n_args
