@@ -36,6 +36,9 @@ module JIT
     bind :abs, [:int32], :int32
     
     # stdio
+    bind :fopen, [:pointer, :pointer], :pointer
+    bind :fread, [:pointer, :uint64, :uint64, :pointer], :uint64
+    bind :fclose, [:pointer], :int32
     bind :printf, [:pointer, :varargs], :int32
     bind :fprintf, [:pointer, :pointer, :varargs], :int32
     bind :sprintf, [:pointer, :pointer, :varargs], :int32
