@@ -28,18 +28,25 @@ module JIT
       @bound[name.to_sym]
     end
     
-    bind :abs, [:int32], :int32
+    # stdlib
     bind :rand, [], :int32
     bind :srand, [:uint32], :void
-    bind :time, [:pointer], :int64
+    bind :malloc, [:uint32], :pointer
+    bind :free, [:pointer], :void
+    bind :abs, [:int32], :int32
+    
+    # stdio
+    bind :printf, [:pointer, :varargs], :int32
+    bind :fprintf, [:pointer, :pointer, :varargs], :int32
+    bind :sprintf, [:pointer, :pointer, :varargs], :int32
+    bind :scanf, [:pointer, :varargs], :int32
+    bind :fscanf, [:pointer, :pointer, :varargs], :int32
     bind :puts, [:pointer], :int32
     bind :putchar, [:int32], :int32
     bind :getchar, [], :int32
-    bind :malloc, [:uint32], :pointer
-    bind :free, [:pointer], :void
     
-    bind :printf, [:pointer, :varargs], :int32
-    bind :sprintf, [:pointer, :pointer, :varargs], :int32
+    # time
+    bind :time, [:pointer], :int64
   end
 
   class C
