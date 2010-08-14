@@ -97,6 +97,44 @@ describe "bitwise OR" do
   end
 end
 
+describe "bitwise left shift" do
+  context "when type is 'uint8'" do
+    before do
+      @func = @context.build_function [:uint8, :uint8], :uint8 do |f|
+        f.return(f.arg(0) << f.arg(1))
+      end
+    end
+    
+    [%w[001010 1], %w[101 11]].each do |xs|
+      xs = xs.map {|x| x.to_i(2)}
+      
+      context "and values are #{xs.inspect}" do
+        subject { @func[*xs] }
+        it { should eql(xs[0] << xs[1]) }
+      end
+    end
+  end
+end
+
+describe "bitwise right shift" do
+  context "when type is 'uint8'" do
+    before do
+      @func = @context.build_function [:uint8, :uint8], :uint8 do |f|
+        f.return(f.arg(0) >> f.arg(1))
+      end
+    end
+    
+    [%w[001010 1], %w[10111 11]].each do |xs|
+      xs = xs.map {|x| x.to_i(2)}
+      
+      context "and values are #{xs.inspect}" do
+        subject { @func[*xs] }
+        it { should eql(xs[0] >> xs[1]) }
+      end
+    end
+  end
+end
+
 after do
   @context.destroy # Die monster, you don't belong in this world!
 end
