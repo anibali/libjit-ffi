@@ -70,6 +70,28 @@ context "when type is 'uintn'" do
   end
 end
 
+context "when type is 'bool'" do
+  [true, false].each do |x|
+    context "and value is #{x}" do
+      it "should evaluate to #{x}" do
+        context.build_function [], :bool do |f|
+          b = f.const(x, :bool)
+          f.return b
+        end.call.should eql(x)
+      end
+
+      describe "#to_b" do
+        it do
+           context.build_function [], :void do |f|
+            b = f.const(x, :bool)
+            b.to_b.should eql(x)
+          end
+        end
+      end
+    end
+  end
+end
+
 after do
   context.destroy # Die monster, you don't belong in this world!
 end
