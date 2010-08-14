@@ -1,6 +1,7 @@
 require 'rubygems'
 require 'jeweler'
 require 'spec/rake/spectask'
+require 'spec/rake/verify_rcov'
 require 'rake/clean'
 require 'yard'
 
@@ -38,7 +39,21 @@ desc "Run all RSpec examples."
 Spec::Rake::SpecTask.new('spec') do |t|
   t.spec_files = FileList['spec/**/*.rb']
   t.spec_opts << '--colour --format progress'
-  t.ruby_opts << '-rrubygems'
+  t.ruby_opts << '-rubygems'
+end
+
+desc "Run all RSpec examples with RCov"
+Spec::Rake::SpecTask.new('spec:rcov') do |t|
+  t.spec_files = FileList['spec/**/*.rb']
+  t.spec_opts << '--colour --format progress'
+  t.ruby_opts << '-rubygems'
+  t.rcov = true
+  t.rcov_opts = ['--exclude', 'spec']
+end
+
+RCov::VerifyTask.new('spec:rcov:verify' => 'spec:rcov') do |t|
+  t.threshold = 88.2
+  t.index_html = 'coverage/index.html'
 end
 
 YARD::Rake::YardocTask.new do |t|
