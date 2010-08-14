@@ -115,7 +115,7 @@ module LibJIT
   attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int], :pointer
   attach_function :jit_value_create_long_constant, [:pointer, :pointer, :long_long], :pointer
   attach_function :jit_value_create_float32_constant, [:pointer, :pointer, :float], :pointer
-  attach_function :jit_value_create_float64_constant, [:pointer, :pointer, :float], :pointer
+  attach_function :jit_value_create_float64_constant, [:pointer, :pointer, :double], :pointer
   attach_function :jit_value_get_nint_constant, [:pointer], :int
   attach_function :jit_value_get_long_constant, [:pointer], :long_long
   attach_function :jit_value_get_float32_constant, [:pointer], :float

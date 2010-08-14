@@ -72,6 +72,20 @@ context "when type is 'float32'" do
   end
 end
 
+context "when type is 'float64'" do
+  [0.2, -3.56, 3421.1235].each do |x|
+    context "and value is #{x}" do
+      it "should evaluate to #{x}" do
+        evaluate_to(:float64) { |f| f.const(x, :float64) }.should be_close(x, 0.000001)
+      end
+      
+      its(:to_f) do
+        in_function { |f| f.const(x, :float64).to_f.should be_close(x, 0.000001) }
+      end
+    end
+  end
+end
+
 context "when type is 'foo'" do
   it do
     expect do
