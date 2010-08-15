@@ -32,6 +32,7 @@ module JIT
     bind :rand, [], :int32
     bind :srand, [:uint32], :void
     bind :malloc, [:uint32], :pointer
+    bind :realloc, [:pointer, :uintn], :pointer
     bind :free, [:pointer], :void
     bind :abs, [:int32], :int32
     
