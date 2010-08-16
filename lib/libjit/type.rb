@@ -406,7 +406,7 @@ end
 
 class StructType < Type
   def initialize *args
-    field_types = args.map {|t| Type.create(t).jit_t}
+    field_types = args.map {|t| Type.create(*t).jit_t}
     
     n_fields = field_types.length
     ptr = FFI::MemoryPointer.new(:pointer, n_fields)
