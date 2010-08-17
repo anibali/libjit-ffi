@@ -234,6 +234,10 @@ class PrimitiveType < Type
   def to_sym
     @sym ||= LibJIT.jit_type_get_kind(@jit_t)
   end
+  
+  def inspect
+    to_sym.inspect
+  end
 end
 
 class BoolType < PrimitiveType
@@ -286,6 +290,10 @@ class VoidType < Type
   # :void
   def to_sym
     :void
+  end
+  
+  def inspect
+    to_sym.inspect
   end
 end
 
@@ -346,6 +354,19 @@ class PointerType < Type
   def to_sym
     :pointer
   end
+  
+  def inspect
+    depth = 1
+    t = ref_type
+    while t.pointer?
+      t = t.ref_type
+      depth += 1
+    end
+    arr = []
+    depth.times { arr << :pointer }
+    arr << t
+    arr.inspect
+  end
 end
 
 class SignatureType < Type
@@ -401,6 +422,10 @@ class SignatureType < Type
   
   def to_ffi_type
     raise JIT::TypeError.new("Can't get FFI type from a signature")
+  end
+  
+  def inspect
+    [:signature, param_types, return_type].inspect
   end
 end
 
@@ -464,6 +489,10 @@ class StructType < Type
     LibJIT.jit_type_set_names jit_t, array_ptr, names.size
   end
   
+  def field_count
+    LibJIT.jit_type_num_fields jit_t
+  end
+  
   # Set this struct's name.
   #
   # @param [String] name the name to set.
@@ -495,6 +524,14 @@ class StructType < Type
   # @return [Boolean] true
   def struct?
     true
+  end
+  
+  def inspect
+    arr = [:struct]
+    field_count.times do |i|
+      arr << field_type(i)
+    end
+    arr.inspect
   end
 end
 

@@ -35,6 +35,7 @@ module LibJIT
   attach_function :jit_type_set_names, [:pointer, :pointer, :uint], :int
   attach_function :jit_type_find_name, [:pointer, :string], :uint
   attach_function :jit_type_get_offset, [:pointer, :uint], :ulong
+  attach_function :jit_type_num_fields, [:pointer], :ulong
   
   attach_function :jit_type_create_tagged, [:pointer, :jit_typetag_t, :string, :pointer, :int], :pointer
   attach_function :jit_type_get_tagged_data, [:pointer], :string
@@ -43,7 +44,7 @@ module LibJIT
   
   attach_function :jit_type_create_signature, [:jit_abi_t, :pointer, :pointer, :uint, :int], :pointer
   attach_function :jit_type_get_abi, [:pointer], :jit_abi_t
-  attach_function :jit_type_num_params, [:pointer], :uint
+  attach_function :jit_type_num_params, [:pointer], :ulong
   attach_function :jit_type_get_return, [:pointer], :pointer
   attach_function :jit_type_get_param, [:pointer, :uint], :pointer
   attach_function :jit_type_create_pointer, [:pointer, :int], :pointer
