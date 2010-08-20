@@ -100,7 +100,6 @@ module LibJIT
   attach_function :jit_value_set_addressable, [:pointer], :void
   attach_function :jit_value_is_addressable, [:pointer], :bool
   
-  def self.jit_label_undefined ; -1 ; end
   attach_function :jit_insn_label, [:pointer, :pointer], :void
   attach_function :jit_insn_branch, [:pointer, :pointer], :void
   attach_function :jit_insn_branch_if, [:pointer, :pointer, :pointer], :void
@@ -113,11 +112,11 @@ module LibJIT
   attach_function :jit_insn_convert, [:pointer, :pointer, :pointer, :int], :pointer
   
   # Constants
-  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :int], :pointer
+  attach_function :jit_value_create_nint_constant, [:pointer, :pointer, :long], :pointer
   attach_function :jit_value_create_long_constant, [:pointer, :pointer, :long_long], :pointer
   attach_function :jit_value_create_float32_constant, [:pointer, :pointer, :float], :pointer
   attach_function :jit_value_create_float64_constant, [:pointer, :pointer, :double], :pointer
-  attach_function :jit_value_get_nint_constant, [:pointer], :int
+  attach_function :jit_value_get_nint_constant, [:pointer], :long
   attach_function :jit_value_get_long_constant, [:pointer], :long_long
   attach_function :jit_value_get_float32_constant, [:pointer], :float
   attach_function :jit_value_get_float64_constant, [:pointer], :double

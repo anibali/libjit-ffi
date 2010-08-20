@@ -4,8 +4,9 @@ class Label
   
   def initialize(function)
     @function = function
-    @jit_t = FFI::MemoryPointer.new(:long, 1)
-    @jit_t.put_long 0, LibJIT.jit_label_undefined
+    @jit_t = FFI::MemoryPointer.new(:ulong, 1)
+    # 0xffffffff represents an undefined label
+    @jit_t.put_ulong 0, 0xffffffff
   end
   
   def self.wrap(function, jit_t)
@@ -16,7 +17,7 @@ class Label
   end
   
   def set
-    LibJIT.jit_insn_label(@function.jit_t, @jit_t)
+    LibJIT.jit_insn_label(@function.jit_t, jit_t)
   end
 end
 end

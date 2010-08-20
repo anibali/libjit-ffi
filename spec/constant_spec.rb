@@ -31,7 +31,7 @@ context "when type is 'uint64'" do
 end
 
 context "when type is 'uintn'" do
-  [0, 2, 63, 127, 200, 1024, [-1].pack('i').unpack('I').first].each do |x|
+  [0, 2, 63, 127, 200, 1024, [-1].pack('l_').unpack('L_').first].each do |x|
     context "and value is #{x}" do
       it "should evaluate to #{x}" do
         evaluate_to(:uintn) { |f| f.const(x, :uintn) }.should eql(x)

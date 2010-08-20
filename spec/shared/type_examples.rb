@@ -110,13 +110,13 @@ end
 
 shared_examples_for 'an intn type' do
   it_should_behave_like 'a signed integer type'
-  its(:size) { should eql([0].pack('i').size) }
+  its(:size) { should eql([0].pack('l_').size) }
   its(:to_sym) { should eql(:intn) }
 end
 
 shared_examples_for 'an uintn type' do
   it_should_behave_like 'an unsigned integer type'
-  its(:size) { should eql([0].pack('I').size) }
+  its(:size) { should eql([0].pack('L_').size) }
   its(:to_sym) { should eql(:uintn) }
 end
 
