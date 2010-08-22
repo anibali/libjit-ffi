@@ -69,6 +69,8 @@ Burke.package_task "x86-mingw32" do |t|
   end
 end
 
+Burke.install_task
+
 Burke.spec_task 'spec' do |t|
   t.spec_files = FileList['spec/**/*.rb']
   t.spec_opts << '--colour --format progress'
