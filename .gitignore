@@ -2,7 +2,6 @@ coverage/
 doc/
 .yardoc/
 pkg/
-native/
 *~
 *.o
 *.so
