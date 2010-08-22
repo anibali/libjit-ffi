@@ -10,6 +10,8 @@ describe JIT::StructType do
     describe 'offset(0)' do
       it { type.offset(0).should eql(0) }
     end
+    
+    its(:field_count) { should eql 4 }
   end
 
   describe '#name' do

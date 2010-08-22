@@ -87,7 +87,7 @@ Burke.spec_task 'spec:rcov' do |t|
 end
 
 Burke.rcov_verify_task 'spec:rcov:verify' => 'spec:rcov' do |t|
-  t.threshold = 91.58
+  t.threshold = 91.75
   t.index_html = 'coverage/index.html'
 end
 

@@ -7,16 +7,34 @@ before do
 end
 
 context "when type is 'int32'" do
-  describe "#**" do
-    before do
-      @func = @context.build_function [:int32, :int32], :float32 do |f|
-        f.return f.arg(0) ** f.arg(1)
+  %w[+ - * **].each do |op|
+    describe op do
+      before do
+        @func = @context.build_function [:int32, :int32], :float32 do |f|
+          f.return f.arg(0).send(op, f.arg(1))
+        end
+      end
+      
+      [2, 8, 9, 3, 20, 0, -5, 3].each_slice(2) do |a, b|
+        context "when evaluating #{a} #{op} #{b}" do
+          it { @func[a, b].should be_close(a.send(op, b), 0.0001) }
+        end
       end
     end
-    
-    [2, 8, 9, 3, 20, 0, -5, 3].each_slice(2) do |a, b|
-      context "when evaluating #{a} ** #{b}" do
-        it { @func[a, b].should be_close(a ** b, 0.0001) }
+  end
+  
+  %w[/ %].each do |op|
+    describe op do
+      before do
+        @func = @context.build_function [:int32, :int32], :float32 do |f|
+          f.return f.arg(0).send(op, f.arg(1))
+        end
+      end
+      
+      [2, 8, 9, 3, 20, 1].each_slice(2) do |a, b|
+        context "when evaluating #{a} #{op} #{b}" do
+          it { @func[a, b].should be_close(a.send(op, b), 0.0001) }
+        end
       end
     end
   end

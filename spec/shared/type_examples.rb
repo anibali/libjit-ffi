@@ -32,6 +32,7 @@ shared_examples_for 'a pointer type' do
   its(:signature?)      { should be_false }
   its(:pointer?)        { should be_true }
   its(:void?)           { should be_false }
+  its(:to_sym)          { should eql :pointer }
 end
 
 shared_examples_for 'a void type' do
@@ -40,6 +41,7 @@ shared_examples_for 'a void type' do
   its(:signature?)      { should be_false }
   its(:pointer?)        { should be_false }
   its(:void?)           { should be_true }
+  its(:to_sym)          { should eql :void }
 end
 
 shared_examples_for 'a struct type' do

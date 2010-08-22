@@ -6,20 +6,35 @@ let(:context) { JIT::Context.new }
 
 context "when type is 'uint8'" do
 describe "#dereference" do
-  let :func do
-    context.build_function [:uint8], :uint8 do |f|
+  let :deref_implicit do
+    context.build_function [:int8], :int32 do |f|
       a = f.arg(0)
       ptr = a.address
       a = ptr.dereference
       f.return a
     end
   end
-  subject { func }
   
-  [0, 2, 5, 63, 127, 200, 255].each do |x|
+  let :deref_uint8 do
+    context.build_function [:int8], :int32 do |f|
+      a = f.arg(0)
+      ptr = a.address
+      a = ptr.dereference :uint8
+      f.return a
+    end
+  end
+  
+  [0, 2, 5, 63, 127, -45, -128].each do |x|
     context "when evaluating 'x = #{x}; dereference(address_of(x))'" do
-      subject { func[x] }
+      subject { deref_implicit[x] }
       it { should eql(x) }
+    end
+  end
+  
+  [0, 2, 5, 63, 127, -45, -128].each do |x|
+    context "when evaluating 'x = #{x}; dereference(address_of(x), int8)'" do
+      subject { deref_uint8[x] }
+      it { should eql [x].pack('c').unpack('C').first }
     end
   end
 end

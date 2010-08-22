@@ -88,10 +88,6 @@ class Type
     LibJIT.jit_type_get_kind(jit_t) == :void
   end
   
-  def primitive?
-    false
-  end
-  
   # Check whether this type is a struct (alias for {#struct?}).
   #
   # @return [Boolean] true if struct, false otherwise.
@@ -183,13 +179,6 @@ class PrimitiveType < Type
     type = self.allocate
     type.instance_variable_set(:@jit_t, jit_t)
     type
-  end
-  
-  # See {Type#primitive?}.
-  #
-  # @return [Boolean] true
-  def primitive?
-    true
   end
   
   # Check whether this is a floating point type.

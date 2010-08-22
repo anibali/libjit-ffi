@@ -297,14 +297,14 @@ class Pointer < Primitive
   # @param [Type] *type the type to dereference as.
   # @return [Value] the retrieved value.
   def dereference(*type)
-    ref_type_jit_t = nil
+    ref_type = nil
     if type.empty?
-      ref_type_jit_t = LibJIT.jit_type_get_ref(self.type.jit_t)
+      ref_type = self.type.ref_type
     else
-      ref_type_jit_t = Type.create(*type).jit_t
+      ref_type = Type.create(*type)
     end
     
-    Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, 0, ref_type_jit_t)
+    Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, 0, ref_type.jit_t)
   end
 
   # Generate an instruction to store a value at the address referenced by this
@@ -319,10 +319,6 @@ class Pointer < Primitive
   def mload offset, *type
     type = Type.create(*type)
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, offset, type.jit_t)
-  end
-  
-  def ref_type
-    Type.wrap LibJIT.jit_type_get_ref(self.type.jit_t)
   end
 end
 

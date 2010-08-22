@@ -34,6 +34,62 @@ describe '#and' do
   end
 end
 
+describe '#or' do
+  let :func do
+    @context.build_function [:bool, :bool], :bool do |f|
+      f.return f.arg(0).or(f.arg(1))
+    end
+  end
+  
+  context "when evaluating 'true || false'" do
+    subject { func[true, false] }
+    it { should eql(true || false) }
+  end
+  
+  context "when evaluating 'true || true'" do
+    subject { func[true, true] }
+    it { should eql(true || true) }
+  end
+  
+  context "when evaluating 'false || true'" do
+    subject { func[false, true] }
+    it { should eql(false || true) }
+  end
+  
+  context "when evaluating 'false || false'" do
+    subject { func[false, false] }
+    it { should eql(false || false) }
+  end
+end
+
+describe '#xor' do
+  let :func do
+    @context.build_function [:bool, :bool], :bool do |f|
+      f.return f.arg(0).xor(f.arg(1))
+    end
+  end
+  
+  context "when evaluating 'true ^^ false'" do
+    subject { func[true, false] }
+    it { should eql(true ^ false) }
+  end
+  
+  context "when evaluating 'true ^^ true'" do
+    subject { func[true, true] }
+    it { should eql(true ^ true) }
+  end
+  
+  context "when evaluating 'false ^^ true'" do
+    subject { func[false, true] }
+    it { should eql(false ^ true) }
+  end
+  
+  context "when evaluating 'false ^^ false'" do
+    subject { func[false, false] }
+    it { should eql(false ^ false) }
+  end
+end
+
 describe '#not' do
   let :func do
     @context.build_function [:bool], :bool do |f|
