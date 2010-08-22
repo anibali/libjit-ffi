@@ -4,6 +4,4 @@ doc/
 pkg/
 *~
 *.o
-*.so
-*.dll
 *.gemspec
