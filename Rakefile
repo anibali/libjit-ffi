@@ -1,102 +1,47 @@
 require 'rubygems'
 require 'burke'
 
-require 'pathname'
-require 'fileutils'
+Burke.enable_all
 
-require 'rake/clean'
-CLOBBER.include("pkg", "doc", "*.gemspec")
-
-Burke.base_spec do |s|
+Burke.setup do |s|
   s.name = 'libjit-ffi'
-  s.version = File.read('VERSION')
   s.summary = 'Ruby bindings for libjit using FFI'
-  s.description = s.summary
   s.author = 'Aiden Nibali'
   s.email = 'dismal.denizen@gmail.com'
   s.homepage = 'http://github.com/dismaldenizen/libjit-ffi'
   
-  s.add_dependency 'ffi'
-  
-  s.add_development_dependency 'rubygems'
-  s.add_development_dependency 'burke'
-  
-  s.files = %w[LICENSE README.md Rakefile VERSION] + Dir.glob('{lib,spec}/**/*')
+  s.dependencies do |d|
+    d.ffi '~> 0.6.3'
+  end
   
   s.has_rdoc = true
-  s.extra_rdoc_files = ['README.md', 'LICENSE']
-  s.rdoc_options << '--title' << "#{s.name} #{File.read 'VERSION'}" <<
-                    '--main' << 'README.md' << '--line-numbers'
-end
+  
+  s.clean = %w[.yardoc]
+  s.clobber = %w[pkg doc html coverage]
+  
+  s.rspec.rcov.threshold = 91.75
+  
+  s.gems do |g|
+    g.platform 'ruby'
+    
+    [ %w[x86-linux libjit-0.1.2-x86-linux.so libjit.so],
+      %w[x86_64-linux libjit-0.1.2-x86_64-linux.so libjit.so],
+      %w[x86-mingw32 libjit-0.1.2-x86-mingw32.dll libjit.dll],
+    ].each do |plaf, lib_src, lib_dest|
+      lib_src = File.join 'native', lib_src
+      lib_dest = File.join 'lib', 'libjit', lib_dest
+      
+      g.platform plaf do |p|
+        p.before do |s|
+          cp lib_src, lib_dest
+          s.files << lib_dest
+        end
 
-Burke.package_task
-
-%w[x86 x86_64].each do |arch|
-  Burke.package_task "#{arch}-linux" do |t|
-    t.before do
-      verbose true do
-        cp "native/libjit-0.1.2-#{arch}-linux.so", 'lib/libjit/libjit.so'
+        p.after do
+          rm lib_dest
+        end
       end
     end
-
-    t.extend_spec do |s|
-      s.files += ['lib/libjit/libjit.so']
-    end
-
-    t.after do
-      verbose true do
-        rm 'lib/libjit/libjit.so'
-      end
-    end
   end
-end
-
-Burke.package_task "x86-mingw32" do |t|
-  t.before do
-    verbose true do
-      cp "native/libjit-0.1.2-x86-mingw32.dll", 'lib/libjit/libjit.dll'
-    end
-  end
-
-  t.extend_spec do |s|
-    s.files += ['lib/libjit/libjit.dll']
-  end
-
-  t.after do
-    verbose true do
-      rm 'lib/libjit/libjit.dll'
-    end
-  end
-end
-
-Burke.install_task
-
-Burke.spec_task 'spec' do |t|
-  t.spec_files = FileList['spec/**/*.rb']
-  t.spec_opts << '--colour --format progress'
-  t.ruby_opts << '-rubygems'
-end
-
-desc "Run specs with rcov"
-Burke.spec_task 'spec:rcov' do |t|
-  t.spec_files = FileList['spec/**/*.rb']
-  t.spec_opts << '--colour --format progress'
-  t.ruby_opts << '-rubygems'
-  t.rcov = true
-  t.rcov_opts = ['--exclude', 'spec']
-end
-
-Burke.rcov_verify_task 'spec:rcov:verify' => 'spec:rcov' do |t|
-  t.threshold = 91.75
-  t.index_html = 'coverage/index.html'
-end
-
-Burke.yard_task do |t|
-  t.options = [
-    '--title', "libjit-ffi #{Burke.base_spec.version}",
-    '--readme', 'README.md',
-    '-m', 'markdown',
-    '--files', 'LICENSE'
-  ]
 end
 
