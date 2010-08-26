@@ -19,6 +19,7 @@ Burke.setup do |s|
   s.clean = %w[.yardoc]
   s.clobber = %w[pkg doc html coverage]
   
+  s.rspec.ruby_opts = '-rubygems'
   s.rspec.rcov.threshold = 91.75
   
   s.gems do |g|
