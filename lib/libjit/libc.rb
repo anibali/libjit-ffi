@@ -1,59 +1,53 @@
 module JIT
-  module LibC
-    extend FFI::Library
+  class LibC
+    LIB = FFI::DynamicLibrary.open(FFI::Platform::LIBC,
+      FFI::DynamicLibrary::RTLD_LAZY | FFI::DynamicLibrary::RTLD_GLOBAL)
     
-    ffi_lib FFI::Platform::LIBC
+    FUNCTIONS = {}
     
-    @bound = {}
-    
-    def self.bind name, param_types, return_type
-      varargs = false
-      if param_types.last == :varargs
-        varargs = true
-        param_types.slice! -1
-      end
+    [
+      # stdlib
+      [:rand, [], :int32],
+      [:srand, [:uint32], :void],
+      [:malloc, [:uint32], :pointer],
+      [:realloc, [:pointer, :uintn], :pointer],
+      [:free, [:pointer], :void],
+      [:abs, [:int32], :int32],
+      
+      # stdio
+      [:fopen, [:pointer, :pointer], :pointer],
+      [:fread, [:pointer, :uint64, :uint64, :pointer], :uint64],
+      [:fclose, [:pointer], :int32],
+      [:printf, [:pointer, :varargs], :int32],
+      [:fprintf, [:pointer, :pointer, :varargs], :int32],
+      [:sprintf, [:pointer, :pointer, :varargs], :int32],
+      [:scanf, [:pointer, :varargs], :int32],
+      [:fscanf, [:pointer, :pointer, :varargs], :int32],
+      [:puts, [:pointer], :int32],
+      [:putchar, [:int32], :int32],
+      [:getchar, [], :int32],
+      
+      # time
+      [:time, [:pointer], :int64],
+      
+    ].each do |name, param_types, return_type|
+      varargs = param_types.last == :varargs
+      param_types.slice! -1 if varargs
           
       param_types = param_types.map {|t| Type.create t}
       return_type = Type.create return_type
       
       ffi_param_types = param_types.map {|t| t.to_ffi_type}
       ffi_param_types << :varargs if varargs
-      ptr = attach_function(name, ffi_param_types, return_type.to_ffi_type)
+      
+      addr = LIB.find_function String(name)
+      raise "couldn't find function '#{name}'" if addr.nil?
+      func = FFI::Function.new(return_type.to_ffi_type, ffi_param_types, addr)
       sig = SignatureType.new(param_types, return_type)
       
-      @bound[name] = [ptr, sig]
+      FUNCTIONS[name] = [func, sig, varargs]
     end
     
-    def self.[] name
-      @bound[name.to_sym]
-    end
-    
-    # stdlib
-    bind :rand, [], :int32
-    bind :srand, [:uint32], :void
-    bind :malloc, [:uint32], :pointer
-    bind :realloc, [:pointer, :uintn], :pointer
-    bind :free, [:pointer], :void
-    bind :abs, [:int32], :int32
-    
-    # stdio
-    bind :fopen, [:pointer, :pointer], :pointer
-    bind :fread, [:pointer, :uint64, :uint64, :pointer], :uint64
-    bind :fclose, [:pointer], :int32
-    bind :printf, [:pointer, :varargs], :int32
-    bind :fprintf, [:pointer, :pointer, :varargs], :int32
-    bind :sprintf, [:pointer, :pointer, :varargs], :int32
-    bind :scanf, [:pointer, :varargs], :int32
-    bind :fscanf, [:pointer, :pointer, :varargs], :int32
-    bind :puts, [:pointer], :int32
-    bind :putchar, [:int32], :int32
-    bind :getchar, [], :int32
-    
-    # time
-    bind :time, [:pointer], :int64
-  end
-
-  class C
     def initialize(function)
       @function = function
     end
@@ -67,28 +61,16 @@ module JIT
     end
 
     def call_native(name, *args)
-      func, signature = *LibC[name]
+      func, signature, varargs = *FUNCTIONS[name]
       
-      # Handle methods with varargs
-      if func.is_a? FFI::VariadicInvoker
+      # Create new signature for variadic functions
+      if varargs
         param_types = signature.param_types
         param_types += args[param_types.size..-1].map {|arg| arg.type}
         signature = SignatureType.new param_types, signature.return_type
-        
-        ffi_param_types = signature.param_types.map do |t|
-          FFI.find_type(t.to_ffi_type)
-        end
-        ffi_return_type = FFI.find_type(signature.return_type.to_ffi_type)
-        
-        func = nil
-        LibC.ffi_libraries.each do |lib|
-          begin
-            func ||= FFI.create_invoker(lib, name.to_s, ffi_param_types, ffi_return_type)
-          rescue LoadError
-          end
-        end
       end
       
+      # Generate instruction to call native function
       @function.call_native func, signature, *args
     end
   end

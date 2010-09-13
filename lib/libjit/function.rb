@@ -153,7 +153,7 @@ class Function
   end
 
   def c
-    @c ||= C.new(self)
+    @c ||= LibC.new(self)
   end
 
   def null
