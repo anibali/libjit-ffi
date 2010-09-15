@@ -11,7 +11,7 @@ Burke.setup do |s|
   s.homepage = 'http://github.com/dismaldenizen/libjit-ffi'
   
   s.dependencies do |d|
-    d.ffi '~> 0.6.3'
+    d.ffi = '~> 0.6.3'
   end
   
   s.has_rdoc = true
