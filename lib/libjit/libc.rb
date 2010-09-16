@@ -61,7 +61,7 @@ module JIT
     end
 
     def call_native(name, *args)
-      func, signature, varargs = *FUNCTIONS[name]
+      func, signature, varargs = *FUNCTIONS[name.to_sym]
       
       # Create new signature for variadic functions
       if varargs
