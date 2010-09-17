@@ -47,6 +47,14 @@ class Type
     args = case ffi_type
       when :string
         :stringz
+      when :long
+        :intn
+      when :ulong
+        :uintn
+      when :float
+        :float32
+      when :double
+        :float64
       else
         ffi_type
     end
