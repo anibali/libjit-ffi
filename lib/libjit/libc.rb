@@ -15,15 +15,15 @@ module JIT
       [:abs, [:int32], :int32],
       
       # stdio
-      [:fopen, [:pointer, :pointer], :pointer],
+      [:fopen, [:stringz, :stringz], :pointer],
       [:fread, [:pointer, :uint64, :uint64, :pointer], :uint64],
       [:fclose, [:pointer], :int32],
-      [:printf, [:pointer, :varargs], :int32],
-      [:fprintf, [:pointer, :pointer, :varargs], :int32],
-      [:sprintf, [:pointer, :pointer, :varargs], :int32],
-      [:scanf, [:pointer, :varargs], :int32],
-      [:fscanf, [:pointer, :pointer, :varargs], :int32],
-      [:puts, [:pointer], :int32],
+      [:printf, [:stringz, :varargs], :int32],
+      [:fprintf, [:pointer, :stringz, :varargs], :int32],
+      [:sprintf, [:stringz, :stringz, :varargs], :int32],
+      [:scanf, [:stringz, :varargs], :int32],
+      [:fscanf, [:pointer, :stringz, :varargs], :int32],
+      [:puts, [:stringz], :int32],
       [:putchar, [:int32], :int32],
       [:getchar, [], :int32],
       
@@ -31,21 +31,21 @@ module JIT
       [:time, [:pointer], :int64],
       
     ].each do |name, param_types, return_type|
-      varargs = param_types.last == :varargs
-      param_types.slice! -1 if varargs
+      variadic = param_types.last == :varargs
+      param_types.slice! -1 if variadic
           
       param_types = param_types.map {|t| Type.create t}
       return_type = Type.create return_type
       
       ffi_param_types = param_types.map {|t| t.to_ffi_type}
-      ffi_param_types << :varargs if varargs
+      ffi_param_types << :varargs if variadic
       
       addr = LIB.find_function String(name)
       raise "couldn't find function '#{name}'" if addr.nil?
       func = FFI::Function.new(return_type.to_ffi_type, ffi_param_types, addr)
       sig = SignatureType.new(param_types, return_type)
       
-      FUNCTIONS[name] = [func, sig, varargs]
+      FUNCTIONS[name] = [func, sig, variadic]
     end
     
     def initialize(function)
@@ -61,17 +61,13 @@ module JIT
     end
 
     def call_native(name, *args)
-      func, signature, varargs = *FUNCTIONS[name.to_sym]
+      func, signature, variadic = *FUNCTIONS[name.to_sym]
       
-      # Create new signature for variadic functions
-      if varargs
-        param_types = signature.param_types
-        param_types += args[param_types.size..-1].map {|arg| arg.type}
-        signature = SignatureType.new param_types, signature.return_type
+      if variadic
+        @function.call_native_variadic func, signature, *args
+      else
+        @function.call_native func, signature, *args
       end
-      
-      # Generate instruction to call native function
-      @function.call_native func, signature, *args
     end
   end
 end

@@ -151,6 +151,14 @@ class Function
   
     Value.wrap LibJIT.jit_insn_call_native(jit_t, nil, func, signature.jit_t, args_ptr, n_args, 0, 0)
   end
+  
+  def call_native_variadic(func, signature, *args)
+    param_types = signature.param_types
+    param_types += args[param_types.size..-1].map {|arg| arg.type}
+    signature = SignatureType.new param_types, signature.return_type
+    
+    call_native(func, signature, *args)
+  end
 
   def c
     @c ||= LibC.new(self)

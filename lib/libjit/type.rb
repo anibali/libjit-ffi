@@ -25,6 +25,8 @@ class Type
     return args.first if args.first.is_a? Type
     
     case args.first.to_sym
+    when :stringz
+      PointerType.new(:uint8)
     when :pointer
       PointerType.new(*args[1..-1])
     when :signature
@@ -38,6 +40,18 @@ class Type
     else
       PrimitiveType.new(*args)
     end
+  end
+  
+  def self.from_ffi_type ffi_type
+    #TODO: moar
+    args = case ffi_type
+      when :string
+        :stringz
+      else
+        ffi_type
+    end
+    
+    Type.create *args
   end
   
   # Create a type by wrapping an FFI pointer representing a jit_type_t
