@@ -7,13 +7,11 @@ class Type
   
   # Create a type.
   #
-  # <ul>
-  # <li>`Type.create(:pointer, ...)` is equivalent to `{PointerType}.new(...)`</li>
-  # <li>`Type.create(:struct, ...)` is equivalent to `{StructType}.new(...)`</li>
-  # <li>`Type.create(:signature, ...)` is equivalent to `{SignatureType}.new(...)`</li>
-  # <li>`Type.create(:void)` is equivalent to `{VoidType}.new`</li>
-  # <li>`Type.create(...)` is equivalent to `{PrimitiveType}.new(...)`</li>
-  # </ul>
+  # * `Type.create(:pointer, ...)` is equivalent to `{PointerType}.new(...)`
+  # * `Type.create(:struct, ...)` is equivalent to `{StructType}.new(...)`
+  # * `Type.create(:signature, ...)` is equivalent to `{SignatureType}.new(...)`
+  # * `Type.create(:void)` is equivalent to `{VoidType}.new`
+  # * `Type.create(...)` is equivalent to `{PrimitiveType}.new(...)`
   #
   # For more information about creating specific kinds of types see
   # {PrimitiveType#initialize}, {PointerType#initialize},
@@ -334,16 +332,15 @@ class PointerType < Type
   # Create a pointer type.
   #
   # Examples:
-  # <ul>
-  # <li>`PointerType.new` => void pointer</li>
-  # <li>`PointerType.new(:void)` => void pointer</li>
-  # <li>`PointerType.new(:pointer)` => pointer to void pointer</li>
-  # <li>`PointerType.new(:pointer, :void)` => pointer to void pointer</li>
-  # <li>`PointerType.new(PointerType.new)` => pointer to void pointer</li>
-  # <li>`PointerType.new(:pointer, :int8)` => pointer to pointer to int8</li>
-  # <li>`PointerType.new(:int8, :pointer, :int16)` => don't do this! (everything
-  # after :int8 is ignored resulting in a pointer to int8)</li>
-  # </ul>
+  #
+  # * `PointerType.new` => void pointer
+  # * `PointerType.new(:void)` => void pointer
+  # * `PointerType.new(:pointer)` => pointer to void pointer
+  # * `PointerType.new(:pointer, :void)` => pointer to void pointer
+  # * `PointerType.new(PointerType.new)` => pointer to void pointer
+  # * `PointerType.new(:pointer, :int8)` => pointer to pointer to int8
+  # * `PointerType.new(:int8, :pointer, :int16)` => don't do this! (everything
+  #   after :int8 is ignored resulting in a pointer to int8)
   def initialize(*args)
     # Defaults to void pointer
     @ref_type = Type.create :void

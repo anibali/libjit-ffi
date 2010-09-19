@@ -5,22 +5,26 @@ class Context
   @@default = nil
   @@current = nil
   
-  # Returns the Context currently used for building
+  # Get the context currently used for building.
+  #
+  # @return [Context] the current context.
   def self.current
     @@current
   end
   
+  # Get the default context.
+  #
+  # @return [Context] the default context.
   def self.default
     @@default ||= new
   end
   
   def initialize
     @jit_t = LibJIT.jit_context_create
-    
-    # Clean up if Context is garbage collected
-    ObjectSpace.define_finalizer(self, proc { self.destroy })
   end
   
+  # Destroy the context. This method should be called when the context is no
+  # longer required.
   def destroy
     return if destroyed?
     build_end if building?
@@ -28,6 +32,9 @@ class Context
     @jit_t = nil
   end
   
+  # Check whether the context has been destroyed.
+  #
+  # @return [Boolean] true if destroyed, false otherwise.
   def destroyed?
     @jit_t.nil?
   end
@@ -41,14 +48,14 @@ class Context
   def build_start
     if defined? @@current and not @@current.nil?
       if @@current == self
-        raise JIT::Error.new("context already holds the build lock")
+        raise JIT::BuildLockError.new("context already holds the build lock")
       else
-        raise JIT::Error.new("another context holds the build lock")
+        raise JIT::BuildLockError.new("another context holds the build lock")
       end
     end
   
     if @jit_t.nil?
-      raise JIT::Error.new("context can't be used to build once destroyed")
+      raise JIT::BuildLockError.new("context can't acquire the build lock once destroyed")
     end
     
     @@current = self
@@ -74,6 +81,10 @@ class Context
   end
   
   def function param_types, return_type
+    unless building?
+      raise JIT::BuildLockError.new("context doesn't hold the build lock")
+    end
+    
     func = Function.new(param_types, return_type)
     
     if block_given?
