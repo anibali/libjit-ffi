@@ -43,20 +43,42 @@ class Type
   end
   
   def self.from_ffi_type ffi_type
-    #TODO: moar
-    args = case ffi_type
-      when :string
-        :stringz
-      when :long
+    #TODO: handle struct types
+    args = case FFI.find_type(ffi_type)
+      when FFI::Type::Builtin::INT8
+        :int8
+      when FFI::Type::Builtin::UINT8
+        :uint8
+      when FFI::Type::Builtin::INT16
+        :int16
+      when FFI::Type::Builtin::UINT16
+        :uint16
+      when FFI::Type::Builtin::INT32
+        :int32
+      when FFI::Type::Builtin::UINT32
+        :uint32
+      when FFI::Type::Builtin::INT64
+        :int64
+      when FFI::Type::Builtin::UINT64
+        :uint64
+      when FFI::Type::Builtin::LONG
         :intn
-      when :ulong
+      when FFI::Type::Builtin::ULONG
         :uintn
-      when :float
+      when FFI::Type::Builtin::FLOAT32
         :float32
-      when :double
+      when FFI::Type::Builtin::FLOAT64
         :float64
+      when FFI::Type::Builtin::STRING
+        :stringz
+      when FFI::Type::Builtin::BOOL
+        :bool
+      when FFI::Type::Builtin::VOID
+        :void
+      when FFI::Type::Builtin::POINTER
+        :pointer
       else
-        ffi_type
+        raise "unrecognised ffi type '#{ffi_type}'"
     end
     
     Type.create *args

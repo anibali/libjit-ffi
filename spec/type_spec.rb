@@ -48,6 +48,23 @@ describe JIT::Type do
       end
     end
   end
+  
+  describe "from_ffi_type" do
+    {
+      :char => :int8,
+      :int8 => :int8,
+      :string => :pointer,
+      :double => :float64,
+      :ulong => :uintn,
+      FFI::Type::Builtin::LONG => :intn
+    }.each do |k, v|
+      context "when passed #{k.inspect}" do
+        it "should return JIT type for '#{v}'" do
+          JIT::Type.from_ffi_type(k).to_sym.should eql v
+        end
+      end
+    end
+  end
 
   after do
     context.destroy # Die monster, you don't belong in this world!
