@@ -519,6 +519,10 @@ class StructType < Type
     LibJIT.jit_type_set_names jit_t, array_ptr, names.size
   end
   
+  def field_name(field)
+    LibJIT.jit_type_get_name(jit_t, field)
+  end
+  
   def field_count
     LibJIT.jit_type_num_fields jit_t
   end
@@ -527,7 +531,7 @@ class StructType < Type
   #
   # @param [String] name the name to set.
   def struct_name=(name)
-    @jit_t = LibJIT.jit_type_create_tagged(jit_t, :struct_name, name, nil, 1)
+    LibJIT.jit_type_create_tagged(jit_t, :struct_name, name, nil, 1)
     @name = name
   end
   

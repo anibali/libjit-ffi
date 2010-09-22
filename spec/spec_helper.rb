@@ -33,6 +33,27 @@ def in_function
   context.destroy
 end
 
+module Spec
+  module Example
+    module Subject
+      module ExampleGroupMethods
+        alias_method :old_its, :its
+        
+        def its attribute, *args, &block
+          if args.empty?
+            old_its attribute, &block
+          else
+            describe("#{attribute}(#{args.map{|a| a.inspect}.join ', '})") do
+              define_method(:subject) { super().send(attribute, *args) }
+              it(&block)
+            end
+          end
+        end
+      end
+    end
+  end
+end
+
 module LibJITMatchers
 end
 

@@ -1,62 +1,50 @@
 require 'spec_helper'
 
 describe JIT::StructType do
-  describe '.new(:int8, :int32, :int8, :int8)' do
-    let(:type) { JIT::StructType.new(:int8, :int32, :int8, :int8) }
-    subject { type }
+  context "when fields are two 32-bit integers named 'x' and 'y'" do
+    subject do
+      @type = JIT::StructType.new(:int32, :int32)
+      @type.field_names = ['x', 'y']
+      @type
+    end
     
     it_should_behave_like 'a struct type'
     
-    describe 'offset(0)' do
-      it { type.offset(0).should eql(0) }
-    end
+    its(:struct_name) { should be_nil }
     
-    its(:field_count) { should eql 4 }
-  end
-
-  describe '#name' do
-    subject { @type.struct_name }
+    its(:find_field, 'x') { should eql 0 }
+    its(:find_field, 'y') { should eql 1 }
     
-    context "when name is set to 'point'" do
-      before do
-        @type = JIT::StructType.new
-        @type.struct_name = "point"
-      end
-      
-      it { should eql("point") }
-    end
+    its(:field_name, 0) { should eql 'x' }
+    its(:field_name, 1) { should eql 'y' }
     
-    context "when name is not set" do
-      before do
-        @type = JIT::StructType.new
-      end
-      
-      it { should be_nil }
-    end
-  end
-
-  describe '#find_field' do
-    subject { @type.find_field(@field) }
+    its(:field_count) { should eql 2 }
     
-    context "when field names are 'x' and 'y' and required field is 'x'" do
-      before do
+    its(:offset, 0) { should eql 0 }
+    its(:offset, 1) { should eql 4 }
+    
+    context "when struct is named 'point'" do
+      subject do
         @type = JIT::StructType.new(:int32, :int32)
         @type.field_names = ['x', 'y']
-        @field = 'x'
-      end
-      
-      it { should eql(0) }
-    end
-    
-    context "when struct name is 'point' and field names are 'x' and 'y' and required field is 'x'" do
-      before do
-        @type = JIT::StructType.new(:int32, :int32)
         @type.struct_name = 'point'
-        @type.field_names = ['x', 'y']
-        @field = 'x'
+        @type
       end
       
-      it { pending ; should eql(0) }
+      it_should_behave_like 'a struct type'
+      
+      its(:struct_name) { should eql 'point' }
+      
+      its(:find_field, 'x') { should eql 0 }
+      its(:find_field, 'y') { should eql 1 }
+      
+      its(:field_name, 0) { should eql 'x' }
+      its(:field_name, 1) { should eql 'y' }
+      
+      its(:field_count) { should eql 2 }
+      
+      its(:offset, 0) { should eql 0 }
+      its(:offset, 1) { should eql 4 }
     end
   end
 end

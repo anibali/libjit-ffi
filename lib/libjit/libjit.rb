@@ -33,6 +33,7 @@ module LibJIT
   attach_function :jit_type_create_struct, [:pointer, :uint, :int], :pointer
   attach_function :jit_type_get_field, [:pointer, :uint], :pointer
   attach_function :jit_type_set_names, [:pointer, :pointer, :uint], :int
+  attach_function :jit_type_get_name, [:pointer, :uint], :string
   attach_function :jit_type_find_name, [:pointer, :string], :uint
   attach_function :jit_type_get_offset, [:pointer, :uint], :ulong
   attach_function :jit_type_num_fields, [:pointer], :ulong
