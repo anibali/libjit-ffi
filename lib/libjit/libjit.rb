@@ -14,7 +14,9 @@ module LibJIT
   enum :jit_kind_t, [:invalid, -1, :void, :int8, :uint8, :int16, :uint16,
     :int32, :uint32, :intn, :uintn, :int64, :uint64, :float32, :float64,
     :floatn, :struct, :union, :signature, :pointer]
-  enum :jit_typetag_t, [:name, 10000, :struct_name, :union_name, :enum_name,
+  enum :jit_typetag_t, [
+    :stringz, 1000,
+    :name, 10000, :struct_name, :union_name, :enum_name,
     :const, :volatile, :reference, :output, :restrict, :sys_bool, :sys_char,
     :sys_schar, :sys_uchar, :sys_short, :sys_ushort, :sys_int, :sys_uint,
     :sys_long, :sys_ulong, :sys_longlong, :sys_ulonglong, :sys_float,

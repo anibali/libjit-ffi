@@ -29,6 +29,14 @@ describe JIT::Type do
       end
     end
   end
+  
+  describe '.create(:stringz)' do
+    let(:type) { JIT::Type.create(:stringz) }
+    subject { type }
+    
+    its(:pointer?) { should be_true }
+    its(:to_sym) { should eql :stringz }
+  end
 
   describe "cast" do
     context "from :int32 to :int8" do
@@ -53,7 +61,7 @@ describe JIT::Type do
     {
       :char => :int8,
       :int8 => :int8,
-      :string => :pointer,
+      :string => :stringz,
       :double => :float64,
       :ulong => :uintn,
       FFI::Type::Builtin::LONG => :intn

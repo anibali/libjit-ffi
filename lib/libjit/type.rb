@@ -24,7 +24,7 @@ class Type
     
     case args.first.to_sym
     when :stringz
-      PointerType.new(:uint8)
+      StringzType.new(*args[1..-1])
     when :pointer
       PointerType.new(*args[1..-1])
     when :signature
@@ -90,7 +90,9 @@ class Type
     t = Type.allocate
     t.instance_variable_set(:@jit_t, jit_t)
     
-    if t.struct?
+    if t.stringz?
+      StringzType.wrap jit_t
+    elsif t.struct?
       StructType.wrap jit_t
     elsif t.pointer?
       PointerType.wrap jit_t
@@ -103,6 +105,16 @@ class Type
     else
       PrimitiveType.wrap jit_t
     end
+  end
+  
+  def base_jit_t
+    t = jit_t
+    loop do
+      temp = LibJIT.jit_type_get_tagged_type(t)
+      break if temp.null?
+      t = temp
+    end
+    return t
   end
   
   [:floating_point?, :integer?, :signed?, :unsigned?].each do |method|
@@ -126,6 +138,17 @@ class Type
     return false
   end
   
+  def stringz?
+    t = jit_t
+    until t.null?
+      if LibJIT.jit_type_get_tagged_kind(t) == :stringz
+        return true
+      end
+      t = LibJIT.jit_type_get_tagged_type(t)
+    end
+    return false
+  end
+  
   def void?
     LibJIT.jit_type_get_kind(jit_t) == :void
   end
@@ -141,28 +164,28 @@ class Type
   #
   # @return [Boolean] true if struct, false otherwise.
   def struct?
-    LibJIT.jit_type_is_struct(@jit_t)
+    LibJIT.jit_type_is_struct(base_jit_t)
   end
   
   # Check whether this type is a pointer.
   #
   # @return [Boolean] true if pointer, false otherwise.
   def pointer?
-    LibJIT.jit_type_is_pointer(@jit_t)
+    LibJIT.jit_type_is_pointer(base_jit_t)
   end
   
   # Check whether this type is a signature.
   #
   # @return [Boolean] true if signature, false otherwise.
   def signature?
-    LibJIT.jit_type_is_signature(@jit_t)
+    LibJIT.jit_type_is_signature(base_jit_t)
   end
   
   # Get the number of bytes that values of this type require for storage.
   #
   # @return [Integer] the size
   def size
-    LibJIT.jit_type_get_size(@jit_t)
+    LibJIT.jit_type_get_size(base_jit_t)
   end
 end
 
@@ -263,31 +286,11 @@ class PrimitiveType < Type
   #
   # @return [Symbol] the Ruby symbol representation of this type.
   def to_sym
-    @sym ||= LibJIT.jit_type_get_kind(@jit_t)
+    @sym ||= LibJIT.jit_type_get_kind(base_jit_t)
   end
   
   def inspect
     to_sym.inspect
-  end
-end
-
-class BoolType < PrimitiveType
-  def initialize
-    @jit_t = LibJIT.jit_type_create_tagged LibJIT.jit_type_sbyte, :sys_bool, nil, nil, 1
-  end
-  
-  def self.wrap jit_t
-    type = self.allocate
-    type.instance_variable_set(:@jit_t, jit_t)
-    type
-  end
-  
-  def to_sym
-    :bool
-  end
-  
-  def to_ffi_type
-    :int8
   end
 end
 
@@ -367,7 +370,7 @@ class PointerType < Type
   end
   
   def ref_type
-    @ref_type ||= Type.wrap(LibJIT.jit_type_get_ref(@jit_t))
+    @ref_type ||= Type.wrap(LibJIT.jit_type_get_ref(base_jit_t))
   end
   
   # See {Type#pointer?}.
@@ -396,6 +399,48 @@ class PointerType < Type
     depth.times { arr << :pointer }
     arr << t
     arr.inspect
+  end
+end
+
+class StringzType < PointerType
+  def initialize
+    super(:uint8)
+    @jit_t = LibJIT.jit_type_create_tagged jit_t, :stringz, nil, nil, 1
+  end
+  
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
+  end
+  
+  def to_sym
+    :stringz
+  end
+  
+  def to_ffi_type
+    :string
+  end
+end
+
+class BoolType < PrimitiveType
+  def initialize
+    super(:int8)
+    @jit_t = LibJIT.jit_type_create_tagged jit_t, :sys_bool, nil, nil, 1
+  end
+  
+  def self.wrap jit_t
+    type = self.allocate
+    type.instance_variable_set(:@jit_t, jit_t)
+    type
+  end
+  
+  def to_sym
+    :bool
+  end
+  
+  def to_ffi_type
+    :int8
   end
 end
 
@@ -433,14 +478,14 @@ class SignatureType < Type
     if @param_types.nil?
       @param_types = []
       LibJIT.jit_type_num_params(@jit_t).times do |i|
-        @param_types << Type.wrap(LibJIT.jit_type_get_param(@jit_t, i))
+        @param_types << Type.wrap(LibJIT.jit_type_get_param(base_jit_t, i))
       end
     end
     @param_types
   end
   
   def return_type
-    @return_type ||= Type.wrap(LibJIT.jit_type_get_return(@jit_t))
+    @return_type ||= Type.wrap(LibJIT.jit_type_get_return(base_jit_t))
   end
   
   # See {Type#signature?}.

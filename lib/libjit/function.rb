@@ -47,14 +47,21 @@ class Function
   
     # Turn each element of 'args' into a pointer to its value
     signature.param_types.each_with_index do |type, i|
-      ptr = FFI::MemoryPointer.new(type.to_ffi_type, 1)
-      if type.bool?
-        args[i] = 1 if args[i] == true
-        args[i] = 0 if args[i] == false
+      if type.stringz?
+        cstr = FFI::MemoryPointer.from_string(args[i]).address
+        ptr = FFI::MemoryPointer.new(:pointer, 1)
+        ptr.put_pointer 0, cstr
+        args[i] = ptr
+      else
+        ptr = FFI::MemoryPointer.new(type.to_ffi_type, 1)
+        if type.bool?
+          args[i] = 1 if args[i] == true
+          args[i] = 0 if args[i] == false
+        end
+        
+        ptr.send("put_#{type.to_ffi_type}", 0, args[i])
+        args[i] = ptr
       end
-      
-      ptr.send("put_#{type.to_ffi_type}", 0, args[i])
-      args[i] = ptr
     end
     
     # Make a C array representation of 'args'
@@ -64,7 +71,11 @@ class Function
     # Create a pointer used to access the function's return value
     return_ptr = nil
     unless signature.return_type.void?
-      return_ptr = FFI::MemoryPointer.new(signature.return_type.to_ffi_type, 1)
+      if signature.return_type.stringz?
+        return_ptr = FFI::MemoryPointer.new(:pointer, 1)
+      else
+        return_ptr = FFI::MemoryPointer.new(signature.return_type.to_ffi_type, 1)
+      end
     end
     
     # Call the function!
@@ -72,15 +83,13 @@ class Function
     
     # Return with our results
     unless signature.return_type.void?
-      res = return_ptr.send("get_#{signature.return_type.to_ffi_type}", 0)
-      if signature.return_type.bool?
-        return res != 0
+      if signature.return_type.stringz?
+        return_ptr.get_pointer(0).get_string(0)
       else
-        return res
+        res = return_ptr.send("get_#{signature.return_type.to_ffi_type}", 0)
+        signature.return_type.bool? ? res != 0 : res
       end
     end
-    
-    return
   end
   
   def [](*args)
