@@ -10,10 +10,6 @@ Burke.setup do |s|
   s.email = 'dismal.denizen@gmail.com'
   s.homepage = 'http://github.com/dismaldenizen/libjit-ffi'
   
-  s.dependencies do |d|
-    d.ffi = '~> 0.6.3'
-  end
-  
   s.has_rdoc = true
   
   s.clean = %w[.yardoc]

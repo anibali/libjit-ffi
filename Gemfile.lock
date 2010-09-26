@@ -1,0 +1,17 @@
+GEM
+  remote: http://rubygems.org/
+  specs:
+    burke (0.2.2)
+      hashie (~> 0.4.0)
+      rake (~> 0.8.7)
+    ffi (0.6.3)
+      rake (>= 0.8.7)
+    hashie (0.4.0)
+    rake (0.8.7)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  burke (~> 0.2.2)
+  ffi (~> 0.6.3)
