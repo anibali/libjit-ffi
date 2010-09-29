@@ -108,7 +108,7 @@ class Function
     Value.create(self, *args)
   end
   
-  def return(value=nil)
+  def return_(value=nil)
     LibJIT.jit_insn_return(jit_t, value ? value.jit_t : nil)
   end
   
@@ -197,25 +197,32 @@ class Function
     LibJIT.jit_insn_branch_if_not(jit_t, cond.jit_t, label.jit_t)
   end
   
-  def if &condition
+  def if_ &condition
     If.new self, &condition
   end
   
-  def unless &condition
+  def unless_ &condition
     Unless.new self, &condition
   end
   
-  def while &condition
+  def while_ &condition
     While.new self, &condition
   end
   
-  def until &condition
+  def until_ &condition
     Until.new self, &condition
   end
   
-  def break
+  def break_
     IterationStructure.break self
   end
+  
+  alias_method :return, :return_
+  alias_method :if, :if_
+  alias_method :unless, :unless_
+  alias_method :while, :while_
+  alias_method :until, :until_
+  alias_method :break, :break_
   
   def math
     MathProxy.new(self)

@@ -41,7 +41,12 @@ class Context
   
   def build
     build_start
-    yield self
+    begin
+      yield self
+    rescue Exception => ex
+      build_end
+      raise ex
+    end
     build_end
   end
   

@@ -25,13 +25,30 @@ Example
 
     require 'libjit'
     
+    # Build a function which accepts 2 signed 32-bit integer arguments and
+    # returns a signed 32-bit integer.
     multiply = JIT::Context.default.build_function [:int32, :int32], :int32 do |f|
-      lhs = f.arg(0)
-      rhs = f.arg(1)
-      f.return(lhs * rhs)
+      # Return the product of the first and second arguments
+      f.return f.arg(0) * f.arg(1)
     end
     
+    # Call the built function
     puts multiply[6, 7] #=> 42
+    
+    # This function squares numbers below 100 using the previously defined
+    # 'multiply' function
+    funky = JIT::Context.default.build_function [:uint32], :uint32 do |f|
+      # If the first argument is under 100...
+      f.if { f.arg(0) < f.const(100, :uint32) }.do {
+        # ...return the product of the first argument and itself.
+        f.return f.call_other(multiply, f.arg(0), f.arg(0))
+      }.end
+      # Otherwise, return the first argument unchanged
+      f.return f.arg(0)
+    end
+    
+    puts funky[5] #=> 25
+    puts funky[105] #=> 105
 
 Installing
 ----------
