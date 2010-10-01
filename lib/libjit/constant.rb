@@ -1,7 +1,7 @@
 module JIT
 
 class Constant
-  # Create a new constant.
+  # Creates a new constant.
   #
   # @param [Function] function the function to which the constant will belong.
   # @param [Number] val the number to be represented by the constant.
@@ -39,7 +39,7 @@ class IntConstant < Primitive
     end
   end
   
-  # Get the integer represented by this constant as a Ruby object.
+  # Gets the integer represented by this constant as a Ruby object.
   #
   # @return [Integer] the integer represented by this constant.
   def to_i
@@ -97,7 +97,7 @@ class BoolConstant < Bool
     @jit_t = LibJIT.jit_value_create_nint_constant(@function.jit_t, @type.jit_t, val)
   end
   
-  # Get the integer represented by this constant as a Ruby object.
+  # Gets the integer represented by this constant as a Ruby object.
   #
   # @return [Integer] the integer represented by this constant.
   def to_i

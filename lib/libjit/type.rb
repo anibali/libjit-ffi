@@ -1,11 +1,12 @@
 module JIT
 
 class Type
-  # Get the FFI pointer representing this value's underlying jit_type_t
+  # Gets the FFI pointer representing this value's underlying jit_type_t
   # (mainly for internal use).
+  # @return [FFI::Pointer] the jit_type_t.
   attr_reader :jit_t
   
-  # Create a type.
+  # Creates a type.
   #
   # * `Type.create(:pointer, ...)` is equivalent to `{PointerType}.new(...)`
   # * `Type.create(:struct, ...)` is equivalent to `{StructType}.new(...)`
@@ -13,12 +14,13 @@ class Type
   # * `Type.create(:void)` is equivalent to `{VoidType}.new`
   # * `Type.create(...)` is equivalent to `{PrimitiveType}.new(...)`
   #
-  # For more information about creating specific kinds of types see
-  # {PrimitiveType#initialize}, {PointerType#initialize},
-  # {StructType#initialize} and {SignatureType#initialize}.
-  #
   # @param *args the arguments which define the type.
   # @return [Type] the new type object.
+  #
+  # @see PrimitiveType#initialize
+  # @see PointerType#initialize
+  # @see StructType#initialize
+  # @see SignatureType#initialize
   def self.create *args
     return args.first if args.first.is_a? Type
     
@@ -82,7 +84,7 @@ class Type
     Type.create *args
   end
   
-  # Create a type by wrapping an FFI pointer representing a jit_type_t
+  # Creates a type by wrapping an FFI pointer representing a jit_type_t
   # (mainly for internal use).
   #
   # @return [Type] the new type object.
@@ -153,35 +155,35 @@ class Type
     LibJIT.jit_type_get_kind(jit_t) == :void
   end
   
-  # Check whether this type is a struct (alias for {#struct?}).
+  # Checks whether this type is a struct (alias for {#struct?}).
   #
   # @return [Boolean] true if struct, false otherwise.
   def structure?
     struct?
   end
   
-  # Check whether this type is a struct.
+  # Checks whether this type is a struct.
   #
   # @return [Boolean] true if struct, false otherwise.
   def struct?
     LibJIT.jit_type_is_struct(base_jit_t)
   end
   
-  # Check whether this type is a pointer.
+  # Checks whether this type is a pointer.
   #
   # @return [Boolean] true if pointer, false otherwise.
   def pointer?
     LibJIT.jit_type_is_pointer(base_jit_t)
   end
   
-  # Check whether this type is a signature.
+  # Checks whether this type is a signature.
   #
   # @return [Boolean] true if signature, false otherwise.
   def signature?
     LibJIT.jit_type_is_signature(base_jit_t)
   end
   
-  # Get the number of bytes that values of this type require for storage.
+  # Gets the number of bytes that values of this type require for storage.
   #
   # @return [Integer] the size
   def size
@@ -221,7 +223,7 @@ class PrimitiveType < Type
     :float64 => :double,
   }.freeze
   
-  # Create a primitive type. Acceptable arguments are :int8, :uint8, :int16,
+  # Creates a primitive type. Acceptable arguments are :int8, :uint8, :int16,
   # :uint16, :int32, :uint32, :int64, :uint64, :intn, :uintn, :float32 and
   # :float64.
   #
@@ -236,7 +238,7 @@ class PrimitiveType < Type
     end
   end
   
-  # Create a primitive type by wrapping an FFI pointer representing a jit_type_t
+  # Creates a primitive type by wrapping an FFI pointer representing a jit_type_t
   # (mainly for internal use).
   #
   # @return [PrimitiveType] the new type object.
@@ -246,14 +248,14 @@ class PrimitiveType < Type
     type
   end
   
-  # Check whether this is a floating point type.
+  # Checks whether this is a floating point type.
   #
   # @return [Boolean] true if floating point type, false otherwise.
   def floating_point?
     [:float32, :float64].include? to_sym
   end
   
-  # Check whether this is an integer type.
+  # Checks whether this is an integer type.
   #
   # @return [Boolean] true if integer type, false otherwise.
   def integer?
@@ -261,28 +263,28 @@ class PrimitiveType < Type
      :uint8, :uint16, :uint32, :uint64, :uintn].include? to_sym
   end
   
-  # Check whether this is a signed type.
+  # Checks whether this is a signed type.
   #
   # @return [Boolean] true if signed type, false otherwise.
   def signed?
     [:int8, :int16, :int32, :int64, :intn, :float32, :float64].include? to_sym
   end
   
-  # Check whether this is an unsigned type.
+  # Checks whether this is an unsigned type.
   #
   # @return [Boolean] true if unsigned type, false otherwise.
   def unsigned?
     [:uint8, :uint16, :uint32, :uint64, :uintn].include? to_sym
   end
   
-  # Get the FFI representation of this type.
+  # Gets the FFI representation of this type.
   #
   # @return [FFI::Type] the FFI representation of this type.
   def to_ffi_type
     FFI_SYM_MAP[to_sym]
   end
   
-  # Get the Ruby symbol representing this type.
+  # Gets the Ruby symbol representing this type.
   #
   # @return [Symbol] the Ruby symbol representation of this type.
   def to_sym
@@ -299,7 +301,7 @@ class VoidType < Type
     @jit_t = LibJIT.jit_type_void
   end
   
-  # Create a void type by wrapping an FFI pointer representing a jit_type_t
+  # Creates a void type by wrapping an FFI pointer representing a jit_type_t
   # (mainly for internal use).
   #
   # @return [VoidType] the new type object.
@@ -309,8 +311,7 @@ class VoidType < Type
     type
   end
   
-  # See {Type#void?}.
-  #
+  # @see Type#void?
   # @return [Boolean] true
   def void?
     true
@@ -332,18 +333,22 @@ class VoidType < Type
 end
 
 class PointerType < Type
-  # Create a pointer type.
+  # Creates a pointer type.
   #
-  # Examples:
+  # @example Create type representing a void pointer
+  #   PointerType.new
+  #   # or
+  #   PointerType.new(:void)
   #
-  # * `PointerType.new` => void pointer
-  # * `PointerType.new(:void)` => void pointer
-  # * `PointerType.new(:pointer)` => pointer to void pointer
-  # * `PointerType.new(:pointer, :void)` => pointer to void pointer
-  # * `PointerType.new(PointerType.new)` => pointer to void pointer
-  # * `PointerType.new(:pointer, :int8)` => pointer to pointer to int8
-  # * `PointerType.new(:int8, :pointer, :int16)` => don't do this! (everything
-  #   after :int8 is ignored resulting in a pointer to int8)
+  # @example Create type representing a pointer to void pointer
+  #   PointerType.new(:pointer)
+  #   # or
+  #   PointerType.new(:pointer, :void)
+  #   # or
+  #   PointerType.new(PointerType.new)
+  #
+  # @example Create type representing a pointer to an 8-bit signed integer
+  #   PointerType.new(:int8)
   def initialize(*args)
     # Defaults to void pointer
     @ref_type = Type.create :void
@@ -359,7 +364,7 @@ class PointerType < Type
     @jit_t = LibJIT.jit_type_create_pointer(@ref_type.jit_t, 1)
   end
   
-  # Create a pointer type by wrapping an FFI pointer representing a jit_type_t
+  # Creates a pointer type by wrapping an FFI pointer representing a jit_type_t
   # (mainly for internal use).
   #
   # @return [PointerType] the new type object.
@@ -373,9 +378,8 @@ class PointerType < Type
     @ref_type ||= Type.wrap(LibJIT.jit_type_get_ref(base_jit_t))
   end
   
-  # See {Type#pointer?}.
-  #
   # @return [Boolean] true
+  # @see Type#pointer?
   def pointer?
     true
   end
@@ -460,7 +464,7 @@ class SignatureType < Type
     @jit_t = LibJIT.jit_type_create_signature(abi, return_type, ptr, n_params, 1)
   end
   
-  # Create a signature type by wrapping an FFI pointer representing a jit_type_t
+  # Creates a signature type by wrapping an FFI pointer representing a jit_type_t
   # (mainly for internal use).
   #
   # @return [SignatureType] the new type object.
@@ -488,9 +492,8 @@ class SignatureType < Type
     @return_type ||= Type.wrap(LibJIT.jit_type_get_return(base_jit_t))
   end
   
-  # See {Type#signature?}.
-  #
   # @return [Boolean] true
+  # @see Type#signature?
   def signature?
     true
   end
@@ -515,7 +518,7 @@ class StructType < Type
     @jit_t = LibJIT.jit_type_create_struct(ptr, n_fields, 1)
   end
   
-  # Create a struct type by wrapping an FFI pointer representing a jit_type_t
+  # Creates a struct type by wrapping an FFI pointer representing a jit_type_t
   # (mainly for internal use).
   #
   # @return [StructType] the new type object.
@@ -525,7 +528,7 @@ class StructType < Type
     type
   end
   
-  # Get a field's memory offset from its index.
+  # Gets a field's memory offset from its index.
   #
   # @return [Integer] the field's offset.
   def offset field
@@ -533,7 +536,7 @@ class StructType < Type
     LibJIT.jit_type_get_offset(jit_t, field)
   end
   
-  # Get a field's type from its index.
+  # Gets a field's type from its index.
   #
   # @return [Type] the field's type.
   def field_type field
@@ -541,14 +544,14 @@ class StructType < Type
     Type.wrap LibJIT.jit_type_get_field(jit_t, field)
   end
   
-  # Get a field's index from its name.
+  # Gets a field's index from its name.
   #
   # @return [Integer] the field's index.
   def find_field name
     LibJIT.jit_type_find_name jit_t, name.to_s
   end
   
-  # Set names for each of this struct's fields.
+  # Sets names for each of this struct's fields.
   #
   # @param [Array] names the field names.
   def field_names=(names)
@@ -572,7 +575,7 @@ class StructType < Type
     LibJIT.jit_type_num_fields jit_t
   end
   
-  # Set this struct's name.
+  # Sets this struct's name.
   #
   # @param [String] name the name to set.
   def struct_name=(name)
@@ -580,7 +583,7 @@ class StructType < Type
     @name = name
   end
   
-  # Get this struct's name.
+  # Gets this struct's name.
   #
   # @return [String] the name.
   def struct_name
@@ -598,9 +601,8 @@ class StructType < Type
     end
   end
   
-  # See {Type#struct?}.
-  #
   # @return [Boolean] true
+  # @see Type#struct?
   def struct?
     true
   end

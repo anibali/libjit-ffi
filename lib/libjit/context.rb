@@ -5,14 +5,14 @@ class Context
   @@default = nil
   @@current = nil
   
-  # Get the context currently used for building.
+  # Gets the context currently used for building.
   #
   # @return [Context] the current context.
   def self.current
     @@current
   end
   
-  # Get the default context.
+  # Gets the default context.
   #
   # @return [Context] the default context.
   def self.default
@@ -23,7 +23,7 @@ class Context
     @jit_t = LibJIT.jit_context_create
   end
   
-  # Destroy the context. This method should be called when the context is no
+  # Destroys the context. This method should be called when the context is no
   # longer required.
   def destroy
     return if destroyed?
@@ -32,7 +32,7 @@ class Context
     @jit_t = nil
   end
   
-  # Check whether the context has been destroyed.
+  # Checks whether the context has been destroyed.
   #
   # @return [Boolean] true if destroyed, false otherwise.
   def destroyed?

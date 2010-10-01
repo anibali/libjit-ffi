@@ -116,7 +116,8 @@ class Function
     Constant.create self, val, *type
   end
   
-  # Create null-terminated string in stack memory.
+  # Generates instructions to create a constant null-terminated string in stack
+  # memory.
   def stringz(ruby_string)
     ruby_string += "\0"
     ptr = Value.wrap LibJIT.jit_insn_alloca(jit_t, const(ruby_string.size, :uintn).jit_t)

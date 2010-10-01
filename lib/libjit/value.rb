@@ -1,11 +1,12 @@
 module JIT
 
 class Value
-  # Get the FFI pointer representing this value's underlying jit_value_t
+  # Gets the FFI pointer representing this value's underlying jit_value_t
   # (mainly for internal use).
+  # @return [FFI::Pointer] the jit_value_t.
   attr_reader :jit_t
   
-  # Create a value which may be have data stored in it later.
+  # Creates a value which may be have data stored in it later.
   #
   # @param function the function to which the value will belong.
   # @param [Type] *type the value's intended type.
@@ -17,7 +18,7 @@ class Value
     wrap LibJIT.jit_value_create(function.jit_t, type.jit_t)
   end
   
-  # Create a value by wrapping an FFI pointer representing a jit_value_t
+  # Creates a value by wrapping an FFI pointer representing a jit_value_t
   # (mainly for internal use).
   #
   # @return [Value] the new value object.
@@ -46,21 +47,21 @@ class Value
     return value
   end
   
-  # Get the function which this value belongs to.
+  # Gets the function which this value belongs to.
   #
   # @return [Function] the function which this value belongs to.
   def function
     @function ||= Function.wrap(LibJIT.jit_value_get_function(jit_t))
   end
   
-  # Get the type associated with this value.
+  # Gets the type associated with this value.
   #
   # @return [Type] the type associated with this value.
   def type
     @type ||= Type.wrap LibJIT.jit_value_get_type(jit_t)
   end
   
-  # Generate an instruction to store another value in this value (assignment).
+  # Generates an instruction to store another value in this value (assignment).
   #
   # @param [Value] other the value to be stored.
   def store(other)
@@ -68,7 +69,7 @@ class Value
     self
   end
   
-  # Generate an instruction to get this value's address in memory. It will 
+  # Generates an instruction to get this value's address in memory. It will 
   # become addressable if it isn't already.
   #
   # @return [Pointer] a temporary value containing the address.
@@ -76,19 +77,19 @@ class Value
     Value.wrap LibJIT.jit_insn_address_of(function.jit_t, jit_t)
   end
   
-  # Check whether this value is currently addressable.
+  # Checks whether this value is currently addressable.
   #
   # @return [Boolean] true if addressable, false otherwise.
   def addressable?
     LibJIT.jit_value_is_addressable(jit_t)
   end
   
-  # Make this value addressable.
+  # Makes this value addressable.
   def set_addressable
     LibJIT.jit_value_set_addressable(jit_t)
   end
   
-  # Generate an instruction to convert this value into a boolean.
+  # Generates an instruction to convert this value into a boolean.
   #
   # @return [Bool] a temporary value representing the boolean.
   def to_bool
@@ -104,7 +105,7 @@ class Value
     return v
   end
   
-  # Generate an instruction to cast this value into a new type.
+  # Generates an instruction to cast this value into a new type.
   #
   # @param [Type] *type the type to cast to.
   # @return [Value] a temporary value representing the cast result.
@@ -118,7 +119,7 @@ class Void < Value
 end
 
 class Primitive < Value
-  # Generate an instruction to check whether this value is less than another value.
+  # Generates an instruction to check whether this value is less than another value.
   #
   # @param [Primitive] other the other value to compare with.
   # @return [Bool] a temporary value representing the boolean result of the comparison.
@@ -126,7 +127,8 @@ class Primitive < Value
     Value.wrap(LibJIT.jit_insn_lt(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
-  # Generate an instruction to check whether this value is less than or equal to another value.
+  # Generates an instruction to check whether this value is less than or equal 
+  # to another value.
   #
   # @param [Primitive] other the other value to compare with.
   # @return [Bool] a temporary value representing the boolean result of the comparison.
@@ -134,7 +136,7 @@ class Primitive < Value
     Value.wrap(LibJIT.jit_insn_le(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
-  # Generate an instruction to check whether this value is greater than another value.
+  # Generates an instruction to check whether this value is greater than another value.
   #
   # @param [Primitive] other the other value to compare with.
   # @return [Bool] a temporary value representing the boolean result of the comparison.
@@ -142,7 +144,8 @@ class Primitive < Value
     Value.wrap(LibJIT.jit_insn_gt(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
-  # Generate an instruction to check whether this value is greater than or equal to another value.
+  # Generates an instruction to check whether this value is greater than or
+  # equal to another value.
   #
   # @param [Primitive] other the other value to compare with.
   # @return [Bool] a temporary value representing the boolean result of the comparison.
@@ -150,7 +153,7 @@ class Primitive < Value
     Value.wrap(LibJIT.jit_insn_ge(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
-  # Generate an instruction to check whether this value is equal to another value.
+  # Generates an instruction to check whether this value is equal to another value.
   #
   # @param [Primitive] other the other value to compare with.
   # @return [Bool] a temporary value representing the boolean result of the comparison.
@@ -158,7 +161,7 @@ class Primitive < Value
     Value.wrap(LibJIT.jit_insn_eq(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
-  # Generate an instruction to check whether this value is not equal to another value.
+  # Generates an instruction to check whether this value is not equal to another value.
   #
   # @param [Primitive] other the other value to compare with.
   # @return [Bool] a temporary value representing the boolean result of the comparison.
@@ -166,14 +169,14 @@ class Primitive < Value
     Value.wrap(LibJIT.jit_insn_ne(function.jit_t, jit_t, other.jit_t)).to_bool
   end
   
-  # Generate an instruction to calculate the bitwise negation of this value.
+  # Generates an instruction to calculate the bitwise negation of this value.
   #
   # @return [Primitive] a temporary value representing the result of negation.
   def ~()
     Value.wrap LibJIT.jit_insn_not(function.jit_t, jit_t)
   end
   
-  # Generate an instruction to perform an arithmetic left shift on this value.
+  # Generates an instruction to perform an arithmetic left shift on this value.
   #
   # @param [Primitive] other the number of positions to shift.
   # @return [Primitive] a temporary value representing the result of shifting.
@@ -181,7 +184,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_shl(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to perform an arithmetic right shift on this value.
+  # Generates an instruction to perform an arithmetic right shift on this value.
   #
   # @param [Primitive] other the number of positions to shift.
   # @return [Primitive] a temporary value representing the result of shifting.
@@ -189,7 +192,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_shr(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to perform a
+  # Generates an instruction to perform a
   # [bitwise AND](http://en.wikipedia.org/wiki/Bitwise_operation#AND) with this value.
   #
   # @param [Primitive] other the other operand.
@@ -198,7 +201,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_and(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to perform a
+  # Generates an instruction to perform a
   # [bitwise XOR](http://en.wikipedia.org/wiki/Bitwise_operation#XOR) with this value.
   #
   # @param [Primitive] other the other operand.
@@ -207,7 +210,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_xor(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to perform a
+  # Generates an instruction to perform a
   # [bitwise OR](http://en.wikipedia.org/wiki/Bitwise_operation#OR) with this value.
   #
   # @param [Primitive] other the other operand.
@@ -216,14 +219,14 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_or(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to reverse the sign of this value.
+  # Generates an instruction to reverse the sign of this value.
   #
   # @return [Primitive] a temporary value representing the calculated result.
   def -@
     Value.wrap LibJIT.jit_insn_neg(function.jit_t, jit_t)
   end
   
-  # Generate an instruction to perform an addition with this value.
+  # Generates an instruction to perform an addition with this value.
   #
   # @param [Primitive] other the other operand.
   # @return [Primitive] a temporary value representing the calculated result.
@@ -231,7 +234,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_add(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to perform a subtraction with this value.
+  # Generates an instruction to perform a subtraction with this value.
   #
   # @param [Primitive] other the other operand.
   # @return [Primitive] a temporary value representing the calculated result.
@@ -239,7 +242,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_sub(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to perform a multiplication with this value.
+  # Generates an instruction to perform a multiplication with this value.
   #
   # @param [Primitive] other the other operand.
   # @return [Primitive] a temporary value representing the calculated result.
@@ -247,7 +250,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_mul(function.jit_t, jit_t, other.jit_t)
   end
   
-  # Generate an instruction to perform a division with this value.
+  # Generates an instruction to perform a division with this value.
   #
   # @param [Primitive] divisor the divisor.
   # @return [Primitive] a temporary value representing the calculated result.
@@ -255,7 +258,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_div(function.jit_t, jit_t, divisor.jit_t)
   end
   
-  # Generate an instruction to apply the modulo function on this value.
+  # Generates an instruction to apply the modulo function on this value.
   #
   # @param [Primitive] divisor the divisor.
   # @return [Primitive] a temporary value representing the remainder.
@@ -263,7 +266,7 @@ class Primitive < Value
     Value.wrap LibJIT.jit_insn_rem(function.jit_t, jit_t, divisor.jit_t)
   end
   
-  # Generate an instruction to find a power of this value.
+  # Generates an instruction to find a power of this value.
   #
   # @param [Primitive] exponent the exponent.
   # @return [Primitive] a temporary value representing the calculated result.
@@ -273,25 +276,37 @@ class Primitive < Value
 end
 
 class Bool < Primitive
+  # Generates an instruction to apply logical NOT on this value.
+  #
+  # @return [Bool] a temporary value representing the boolean result.
   def not
     self.to_not_bool
   end
   
+  # Generates an instruction to apply logical AND on this value.
+  #
+  # @return [Bool] a temporary value representing the boolean result.
   def and(other)
     (self & other).to_bool
   end
   
+  # Generates an instruction to apply logical OR on this value.
+  #
+  # @return [Bool] a temporary value representing the boolean result.
   def or(other)
     (self | other).to_bool
   end
   
+  # Generates an instruction to apply logical XOR on this value.
+  #
+  # @return [Bool] a temporary value representing the boolean result.
   def xor(other)
     (self ^ other).to_bool
   end
 end
 
 class Pointer < Primitive
-  # Generate an instruction to retrieve the value being pointed to. If an
+  # Generates an instruction to retrieve the value being pointed to. If an
   # explicit type is not specified it will be inferred.
   #
   # @param [Type] *type the type to dereference as.
@@ -307,7 +322,7 @@ class Pointer < Primitive
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, 0, ref_type.jit_t)
   end
 
-  # Generate an instruction to store a value at the address referenced by this
+  # Generates an instruction to store a value at the address referenced by this
   # pointer. An address offset may optionally be set with a Ruby integer.
   #
   # @param [Value] value the value to store.
@@ -316,7 +331,7 @@ class Pointer < Primitive
     LibJIT.jit_insn_store_relative(function.jit_t, jit_t, offset, value.jit_t)
   end
   
-  # Generate an instruction to load a value from the address referenced by this
+  # Generates an instruction to load a value from the address referenced by this
   # pointer. An address offset may optionally be set with a Ruby integer.
   #
   # @param [Optional Integer] offset an offset to the address.
@@ -328,7 +343,7 @@ class Pointer < Primitive
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, offset, type.jit_t)
   end
   
-  # Generate an instruction to load the array element at the specified index.
+  # Generates an instruction to load the array element at the specified index.
   #
   # @param [Value] index the array index.
   # @return [Value] the retrieved value.
@@ -336,7 +351,7 @@ class Pointer < Primitive
     Value.wrap LibJIT.jit_insn_load_elem(function.jit_t, jit_t, index.jit_t, type.ref_type.jit_t)
   end
   
-  # Generate an instruction to store an array element at the specified index.
+  # Generates an instruction to store an array element at the specified index.
   #
   # @param [Value] index the array index.
   # @param [Value] value the value to store.
@@ -346,7 +361,7 @@ class Pointer < Primitive
 end
 
 class Struct < Value
-  # Generate an instruction to load the value of a field.
+  # Generates an instruction to load the value of a field.
   #
   # @param field the field's name or index.
   # @return [Value] the field's value.
@@ -354,7 +369,7 @@ class Struct < Value
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, self.address.jit_t, type.offset(field), type.field_type(field).jit_t)
   end
   
-  # Generate an instruction to store a value in a field.
+  # Generates an instruction to store a value in a field.
   #
   # @param field the field's name or index.
   # @param [Value] value the value to store.
