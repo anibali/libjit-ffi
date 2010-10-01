@@ -1,5 +1,8 @@
 module JIT
 
+# Represents the type of a {Value}. The types in LibJIT are very similar to 
+# those of C-like languages, and can represent integers, floating point numbers,
+# pointers, structs and so forth.
 class Type
   # Gets the FFI pointer representing this value's underlying jit_type_t
   # (mainly for internal use).
@@ -42,6 +45,10 @@ class Type
     end
   end
   
+  # Converts an FFI::Type into the corresponding JIT::Type.
+  #
+  # @param [FFI::Type] ffi_type the FFI type
+  # @return [Type] the converted JIT type
   def self.from_ffi_type ffi_type
     #TODO: handle struct types
     args = case FFI.find_type(ffi_type)
@@ -119,16 +126,44 @@ class Type
     return t
   end
   
-  [:floating_point?, :integer?, :signed?, :unsigned?].each do |method|
-    define_method method do
-      false
-    end
+  # Checks whether this type represents a floating point number.
+  #
+  # @return [Boolean] true if a floating point type, false otherwise.
+  def floating_point?
+    false
   end
   
-  def boolean?
-    bool?
+  # @see Type#floating_point?
+  def float?
+    floating_point?
   end
   
+  # Checks whether this type represents an integer.
+  #
+  # @return [Boolean] true if an integer type, false otherwise.
+  def integer?
+    false
+  end
+  
+  # Checks whether this type represents a signed number (that is, values can
+  # be negative).
+  #
+  # @return [Boolean] true if a signed type, false otherwise.
+  def signed?
+    false
+  end
+  
+  # Checks whether this type represents an unsigned number (that is, values
+  # cannot be negative).
+  #
+  # @return [Boolean] true if an unsigned type, false otherwise.
+  def unsigned?
+    false
+  end
+  
+  # Checks whether this type represents a boolean.
+  #
+  # @return [Boolean] true if a boolean type, false otherwise.
   def bool?
     t = jit_t
     until t.null?
@@ -140,6 +175,14 @@ class Type
     return false
   end
   
+  # @see Type#bool?
+  def boolean?
+    bool?
+  end
+  
+  # Checks whether this type represents a null-terminated string.
+  #
+  # @return [Boolean] true if a stringz type, false otherwise.
   def stringz?
     t = jit_t
     until t.null?
@@ -151,34 +194,35 @@ class Type
     return false
   end
   
+  # Checks whether this type represents void.
+  #
+  # @return [Boolean] true if a void type, false otherwise.
   def void?
     LibJIT.jit_type_get_kind(jit_t) == :void
   end
   
-  # Checks whether this type is a struct (alias for {#struct?}).
-  #
-  # @return [Boolean] true if struct, false otherwise.
-  def structure?
-    struct?
-  end
-  
   # Checks whether this type is a struct.
   #
-  # @return [Boolean] true if struct, false otherwise.
+  # @return [Boolean] true if a struct type, false otherwise.
   def struct?
     LibJIT.jit_type_is_struct(base_jit_t)
   end
   
+  # @see Type#struct?
+  def structure?
+    struct?
+  end
+  
   # Checks whether this type is a pointer.
   #
-  # @return [Boolean] true if pointer, false otherwise.
+  # @return [Boolean] true if a pointer type, false otherwise.
   def pointer?
     LibJIT.jit_type_is_pointer(base_jit_t)
   end
   
   # Checks whether this type is a signature.
   #
-  # @return [Boolean] true if signature, false otherwise.
+  # @return [Boolean] true if a signature type, false otherwise.
   def signature?
     LibJIT.jit_type_is_signature(base_jit_t)
   end
