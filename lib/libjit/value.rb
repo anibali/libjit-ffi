@@ -311,14 +311,37 @@ class Pointer < Primitive
   # pointer. An address offset may optionally be set with a Ruby integer.
   #
   # @param [Value] value the value to store.
-  # @param [Integer] offset an offset to the address.
+  # @param [Optional Integer] offset an offset to the address.
   def mstore(value, offset=0)
-    LibJIT.jit_insn_store_relative(function.jit_t, self.jit_t, offset, value.jit_t)
+    LibJIT.jit_insn_store_relative(function.jit_t, jit_t, offset, value.jit_t)
   end
   
-  def mload offset, *type
-    type = Type.create(*type)
+  # Generate an instruction to load a value from the address referenced by this
+  # pointer. An address offset may optionally be set with a Ruby integer.
+  #
+  # @param [Optional Integer] offset an offset to the address.
+  # @param [Type] *type type of value to load (see Type#create).
+  # @return [Value] the retrieved value.
+  def mload *args
+    offset = args.first.is_a?(Fixnum) ? args.slice!(0) : 0
+    type = Type.create(*args)
     Value.wrap LibJIT.jit_insn_load_relative(function.jit_t, jit_t, offset, type.jit_t)
+  end
+  
+  # Generate an instruction to load the array element at the specified index.
+  #
+  # @param [Value] index the array index.
+  # @return [Value] the retrieved value.
+  def [](index)
+    Value.wrap LibJIT.jit_insn_load_elem(function.jit_t, jit_t, index.jit_t, type.ref_type.jit_t)
+  end
+  
+  # Generate an instruction to store an array element at the specified index.
+  #
+  # @param [Value] index the array index.
+  # @param [Value] value the value to store.
+  def []=(index, value)
+    LibJIT.jit_insn_load_elem(function.jit_t, jit_t, index.jit_t, value.jit_t)
   end
 end
 

@@ -96,6 +96,8 @@ module LibJIT
   attach_function :jit_insn_store, [:pointer, :pointer, :pointer], :void
   attach_function :jit_insn_load_relative, [:pointer, :pointer, :long, :pointer], :pointer
   attach_function :jit_insn_store_relative, [:pointer, :pointer, :long, :pointer], :int
+  attach_function :jit_insn_load_elem, [:pointer, :pointer, :pointer, :pointer], :pointer
+  attach_function :jit_insn_store_elem, [:pointer, :pointer, :pointer, :pointer], :int
   
   attach_function :jit_insn_alloca, [:pointer, :pointer], :pointer
   
