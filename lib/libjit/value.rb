@@ -356,7 +356,7 @@ class Pointer < Primitive
   # @param [Value] index the array index.
   # @param [Value] value the value to store.
   def []=(index, value)
-    LibJIT.jit_insn_load_elem(function.jit_t, jit_t, index.jit_t, value.jit_t)
+    LibJIT.jit_insn_store_elem(function.jit_t, jit_t, index.jit_t, value.jit_t)
   end
 end
 
