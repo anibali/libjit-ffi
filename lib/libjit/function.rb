@@ -118,13 +118,21 @@ class Function
   
   # Generates instructions to create a constant null-terminated string in stack
   # memory.
+  #
+  # @param [String] ruby_string
+  # @return [Value]
   def stringz(ruby_string)
     ruby_string += "\0"
-    ptr = Value.wrap LibJIT.jit_insn_alloca(jit_t, const(ruby_string.size, :uintn).jit_t)
+    ptr = stalloc(ruby_string.size).cast(:stringz)
     ruby_string.unpack('C*').each_with_index do |c, i|
-      ptr.mstore(const(c, :uint8), i)
+      ptr[i] = const(c, :uint8)
     end
     ptr
+  end
+  
+  def stalloc(size)
+    size = const(size, :uintn).jit_t if size.is_a? Fixnum
+    Value.wrap LibJIT.jit_insn_alloca(jit_t, size)
   end
   
   def label

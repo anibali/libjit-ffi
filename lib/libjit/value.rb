@@ -345,17 +345,19 @@ class Pointer < Primitive
   
   # Generates an instruction to load the array element at the specified index.
   #
-  # @param [Value] index the array index.
+  # @param [Value, Integer] index the array index.
   # @return [Value] the retrieved value.
   def [](index)
+    index = Constant.create(function, index, :uint8) if index.is_a? Fixnum
     Value.wrap LibJIT.jit_insn_load_elem(function.jit_t, jit_t, index.jit_t, type.ref_type.jit_t)
   end
   
   # Generates an instruction to store an array element at the specified index.
   #
-  # @param [Value] index the array index.
+  # @param [Value, Integer] index the array index.
   # @param [Value] value the value to store.
   def []=(index, value)
+    index = Constant.create(function, index, :uint8) if index.is_a? Fixnum
     LibJIT.jit_insn_store_elem(function.jit_t, jit_t, index.jit_t, value.jit_t)
   end
 end
