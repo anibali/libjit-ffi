@@ -1,25 +1,20 @@
 require 'rubygems'
 require 'burke'
 
-Burke.enable_all
-
-Burke.setup do |s|
-  s.name = 'libjit-ffi'
-  s.summary = 'Ruby bindings for libjit using FFI'
-  s.author = 'Aiden Nibali'
-  s.email = 'dismal.denizen@gmail.com'
-  s.homepage = 'http://github.com/dismaldenizen/libjit-ffi'
+Burke.setup do
+  name      'libjit-ffi'
+  summary   'Ruby bindings for libjit using FFI'
+  author    'Aiden Nibali'
+  email     'dismal.denizen@gmail.com'
+  homepage  'http://github.com/dismaldenizen/libjit-ffi'
   
-  s.has_rdoc = true
+  clean     %w[.yardoc]
+  clobber   %w[pkg doc html coverage]
   
-  s.clean = %w[.yardoc]
-  s.clobber = %w[pkg doc html coverage]
+  rspec.rcov.failure_threshold = 89
   
-  s.rspec.ruby_opts = ['-rubygems']
-  s.rspec.rcov.threshold = 91.75
-  
-  s.gems do |g|
-    g.platform 'ruby'
+  gems do
+    add_platform 'ruby'
     
     [ %w[x86-linux libjit-0.1.2-x86-linux.so libjit.so],
       %w[x86_64-linux libjit-0.1.2-x86_64-linux.so libjit.so],
@@ -28,13 +23,13 @@ Burke.setup do |s|
       lib_src = File.join 'native', lib_src
       lib_dest = File.join 'lib', 'libjit', lib_dest
       
-      g.platform plaf do |p|
-        p.before do |s|
+      add_platform plaf do
+        before_build do |s|
           cp lib_src, lib_dest
           s.files << lib_dest
         end
 
-        p.after do
+        after_build do
           rm lib_dest
         end
       end

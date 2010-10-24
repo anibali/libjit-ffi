@@ -1,4 +1,6 @@
-require File.dirname(__FILE__) + "/../lib/libjit"
+$LOAD_PATH << File.join(File.dirname(File.expand_path(__FILE__)), 'lib')
+require 'libjit'
+require 'rspec/core'
 Dir["#{File.dirname(__FILE__)}/shared/**/*.rb"].each {|f| require f}
 
 def evaluate_to(return_type)
@@ -33,31 +35,18 @@ def in_function
   context.destroy
 end
 
-module Spec
-  module Example
-    module Subject
-      module ExampleGroupMethods
-        alias_method :old_its, :its
-        
-        def its attribute, *args, &block
-          if args.empty?
-            old_its attribute, &block
-          else
-            describe("#{attribute}(#{args.map{|a| a.inspect}.join ', '})") do
-              define_method(:subject) { super().send(attribute, *args) }
-              it(&block)
-            end
-          end
-        end
+module RSpec::Core::Subject::ClassMethods
+  alias_method :old_its, :its
+  
+  def its attribute, *args, &block
+    if args.empty?
+      old_its attribute, &block
+    else
+      describe("#{attribute}(#{args.map{|a| a.inspect}.join ', '})") do
+        define_method(:subject) { super().send(attribute, *args) }
+        it(&block)
       end
     end
   end
-end
-
-module LibJITMatchers
-end
-
-Spec::Runner.configure do |config|
-  config.include(LibJITMatchers)
 end
 

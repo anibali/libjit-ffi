@@ -1,17 +1,28 @@
 GEM
   remote: http://rubygems.org/
   specs:
-    burke (0.2.2)
-      hashie (~> 0.4.0)
-      rake (~> 0.8.7)
+    burke (0.3.5)
+    diff-lcs (1.1.2)
     ffi (0.6.3)
       rake (>= 0.8.7)
-    hashie (0.4.0)
     rake (0.8.7)
+    rcov (0.9.9)
+    rspec (2.0.0)
+      rspec-core (= 2.0.0)
+      rspec-expectations (= 2.0.0)
+      rspec-mocks (= 2.0.0)
+    rspec-core (2.0.0)
+    rspec-expectations (2.0.0)
+      diff-lcs (>= 1.1.2)
+    rspec-mocks (2.0.0)
+      rspec-core (= 2.0.0)
+      rspec-expectations (= 2.0.0)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  burke (~> 0.2.2)
+  burke (~> 0.3.5)
   ffi (~> 0.6.3)
+  rcov (~> 0.9.9)
+  rspec (~> 2.0.0)
