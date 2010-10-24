@@ -7,6 +7,7 @@ module LibJIT
     Pathname.new(__FILE__).expand_path.dirname.join(name).to_s
   end unless defined? LIB_OPTS
   LIB_OPTS << 'jit'
+  LIB_OPTS << '/usr/local/lib/libjit.so'
   
   ffi_lib LIB_OPTS
   
