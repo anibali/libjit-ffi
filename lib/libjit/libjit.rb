@@ -61,6 +61,7 @@ module LibJIT
   
   attach_function :jit_function_create, [:pointer, :pointer], :pointer
   attach_function :jit_function_compile, [:pointer], :void
+  attach_function :jit_function_is_compiled, [:pointer], :bool
   attach_function :jit_function_apply, [:pointer, :pointer, :pointer], :void
   attach_function :jit_function_get_signature, [:pointer], :pointer
   

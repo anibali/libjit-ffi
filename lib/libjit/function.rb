@@ -34,6 +34,10 @@ class Function
     LibJIT.jit_function_compile jit_t
   end
   
+  def compiled?
+    LibJIT.jit_function_is_compiled jit_t
+  end
+  
   def call(*args)
     if context.destroyed?
       raise JIT::Error.new("can't call function, context has been destroyed")
