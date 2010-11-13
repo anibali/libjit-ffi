@@ -63,11 +63,11 @@ context "when type is 'float32'" do
   [0.2, -3.56, 3421.1235].each do |x|
     context "and value is #{x}" do
       it "should evaluate to #{x}" do
-        evaluate_to(:float32) { |f| f.const(x, :float32) }.should be_close(x, 0.0001)
+        evaluate_to(:float32) { |f| f.const(x, :float32) }.should be_within(1e-4).of(x)
       end
       
       its(:to_f) do
-        in_function { |f| f.const(x, :float32).to_f.should be_close(x, 0.0001) }
+        in_function { |f| f.const(x, :float32).to_f.should be_within(1e-4).of(x) }
       end
     end
   end
@@ -77,11 +77,11 @@ context "when type is 'float64'" do
   [0.2, -3.56, 3421.1235].each do |x|
     context "and value is #{x}" do
       it "should evaluate to #{x}" do
-        evaluate_to(:float64) { |f| f.const(x, :float64) }.should be_close(x, 0.000001)
+        evaluate_to(:float64) { |f| f.const(x, :float64) }.should be_within(1e-6).of(x)
       end
       
       its(:to_f) do
-        in_function { |f| f.const(x, :float64).to_f.should be_close(x, 0.000001) }
+        in_function { |f| f.const(x, :float64).to_f.should be_within(1e-6).of(x) }
       end
     end
   end

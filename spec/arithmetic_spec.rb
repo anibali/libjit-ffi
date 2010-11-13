@@ -18,7 +18,7 @@ context "when type is 'int32'" do
       
       [2, 8, 9, 3, 20, 0, -5, 3].each_slice(2) do |a, b|
         context "when evaluating #{a} #{op} #{b}" do
-          it { @func[a, b].should be_close(a.send(op, b), 0.0001) }
+          it { @func[a, b].should be_within(1e-4).of(a.send(op, b)) }
         end
       end
     end
@@ -34,7 +34,7 @@ context "when type is 'int32'" do
       
       [2, 8, 9, 3, 20, 1].each_slice(2) do |a, b|
         context "when evaluating #{a} #{op} #{b}" do
-          it { @func[a, b].should be_close(a.send(op, b), 0.0001) }
+          it { @func[a, b].should be_within(1e-4).of(a.send(op, b)) }
         end
       end
     end
@@ -52,7 +52,7 @@ describe "#+" do
   
   [0.4, 0.3, -0.1, 0.43, 432.65, 89.12354, 0, 7.6, 2, 3].each_slice(2) do |a, b|
     context "when evaluating #{a} + #{b}" do
-      it { @func[a, b].should be_close(a + b, 0.0001) }
+      it { @func[a, b].should be_within(1e-4).of(a + b) }
     end
   end
 end
@@ -67,7 +67,7 @@ describe "#acos" do
   [0.4, 0.3, -0.1, 0.43, 0, 1].each do |x|
     context "when evaluating acos(#{x})" do
       subject { @func[x] }
-      it { should be_close(Math.acos(x), 0.0001) }
+      it { should be_within(1e-4).of(Math.acos(x)) }
     end
   end
 end
@@ -85,7 +85,7 @@ describe "#+" do
   
   [0.4, 0.3, -0.1, 0.43, 432.65, 89.12354, 0, 7.6, 2, 3].each_slice(2) do |a, b|
     context "when evaluating #{a} + #{b}" do
-      it { @func[a, b].should be_close(a + b, 0.000001) }
+      it { @func[a, b].should be_within(1e-6).of(a + b) }
     end
   end
 end

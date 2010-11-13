@@ -33,7 +33,7 @@ describe "time" do
   end
   subject { func[] }
 
-  it { should be_close(Time.now.to_i, 3) }
+  it { should be_within(3).of(Time.now.to_i) }
 end
 
 describe "abs" do
