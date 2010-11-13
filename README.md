@@ -18,7 +18,7 @@ exists, but I felt that using FFI rather than C extensions would increase
 the portability of the bindings.
 
 libjit-ffi currently wraps LibJIT 0.1.2, of which the source tarball may be found 
-[here](http://ftp.twaren.net/Unix/NonGNU/dotgnu-pnet/libjit-releases/libjit-0.1.2.tar.gz)
+[here](ftp://ftp.gnu.org/gnu/dotgnu/libjit/libjit-0.1.2.tar.gz)
 
 Example
 -------
