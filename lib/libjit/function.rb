@@ -28,7 +28,7 @@ class Function
     # If function is expected to return a value and default return instruction
     # is reached, raise an exception
     if x == 1 and not signature.return_type.void?
-      raise JIT::Error.new("Expected 'return' instruction for non-void function")
+      #raise JIT::Error.new("Expected 'return' instruction for non-void function")
     end
     
     LibJIT.jit_function_compile jit_t
