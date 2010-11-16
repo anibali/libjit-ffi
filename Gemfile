@@ -5,7 +5,7 @@ group(:runtime) do
 end
 
 group(:development) do
-  gem 'burke', '~> 0.3.5'
+  gem 'burke', '~> 0.3.6'
 end
 
 group(:test) do
