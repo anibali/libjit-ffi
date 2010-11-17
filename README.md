@@ -55,8 +55,7 @@ Installing
 
 ### From source
 
-1. Download the source for libjit-ffi, extract it and change into the produced
-   directory.
+1. Download the source code for libjit-ffi and change into its root directory.
 2. Install Bundler with `gem install bundler`.
 3. Run `bundle install` to install dependencies.
 4. Run `rake install` to build the libjit-ffi gem and install it.
