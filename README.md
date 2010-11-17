@@ -55,10 +55,11 @@ Installing
 
 ### From source
 
-1. Install the 'burke' gem with `sudo gem install burke`.
-2. Download the source for libjit-ffi.
-3. Run `sudo rake install` from inside the libjit-ffi directory to build the
-   gem and install it.
+1. Download the source for libjit-ffi, extract it and change into the produced
+   directory.
+2. Install Bundler with `gem install bundler`.
+3. Run `bundle install` to install dependencies.
+4. Run `rake install` to build the libjit-ffi gem and install it.
 
 Features
 --------
