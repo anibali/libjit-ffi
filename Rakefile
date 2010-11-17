@@ -17,7 +17,7 @@ Burke.setup do
     add_platform 'ruby'
     
     [ %w[x86-linux libjit-0.1.2-x86-linux.so libjit.so],
-      %w[x86_64-linux libjit-0.1.2-x86_64-linux.so libjit.so],
+      %w[x86_64-linux libjit-git20101117-x86_64-linux.so libjit.so],
       %w[x86-mingw32 libjit-0.1.2-x86-mingw32.dll libjit.dll],
     ].each do |plaf, lib_src, lib_dest|
       lib_src = File.join 'native', lib_src
