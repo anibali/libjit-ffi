@@ -25,7 +25,17 @@ class Type
   # @see StructType#initialize
   # @see SignatureType#initialize
   def self.create *args
+    args = args[0] if args.one? and args[0].is_a? Array
+    
     return args.first if args.first.is_a? Type
+    
+    # TODO: typdef elsewhere?
+    args = case args
+    when [:size_t]
+      [:intn]
+    else
+      args
+    end
     
     case args.first.to_sym
     when :stringz
